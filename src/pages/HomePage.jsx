@@ -22,17 +22,17 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen">
-      {/* ── HERO ─────────────────────────────────────────────── */}
-      <section className="relative min-h-screen flex flex-col bg-gradient-to-b from-[#FFF9E6] to-[#FFF3D0] overflow-hidden">
+      {/* ── HERO (緊湊版，讓主題卡片第一屏可見) ─────────────── */}
+      <section className="bg-gradient-to-b from-[#FFF9E6] to-[#FFF3D0]">
         {/* Navbar */}
-        <nav className="relative z-10 flex items-center justify-between px-6 py-4 max-w-6xl mx-auto w-full">
+        <nav className="flex items-center justify-between px-6 py-4 max-w-6xl mx-auto">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#FF6B35] to-[#FFD23F] flex items-center justify-center">
               <span className="text-white font-bold text-xs">食</span>
             </div>
             <span className="font-bold text-[#333] text-lg">食尚玩家 AI 導遊</span>
           </div>
-          <div className="hidden sm:flex items-center gap-3">
+          <div className="flex items-center gap-2">
             {['台北', '台南', '花蓮'].map((city) => (
               <button
                 key={city}
@@ -45,50 +45,40 @@ export default function HomePage() {
           </div>
         </nav>
 
-        {/* Hero content */}
-        <div className="flex-1 flex flex-col items-center justify-center text-center px-6 py-16 max-w-4xl mx-auto w-full">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-white/80 border border-[#FF6B35]/30 rounded-full px-4 py-1.5 text-sm text-[#FF6B35] font-medium mb-8 shadow-sm">
+        {/* Hero content — 精簡高度 */}
+        <div className="text-center px-6 pt-6 pb-8 max-w-4xl mx-auto">
+          <div className="inline-flex items-center gap-2 bg-white/80 border border-[#FF6B35]/30 rounded-full px-4 py-1 text-sm text-[#FF6B35] font-medium mb-4 shadow-sm">
             <span className="w-2 h-2 rounded-full bg-[#FF6B35] animate-pulse" />
             食尚玩家 500位合作達人 × AI 策展
           </div>
 
-          <h1 className="text-4xl sm:text-5xl font-bold text-[#333] mb-4 leading-tight">
+          <h1 className="text-3xl sm:text-4xl font-bold text-[#333] mb-2 leading-tight">
             <span className="gradient-text">台灣可以這樣玩！</span>
           </h1>
 
-          <p className="text-lg text-[#666] mb-3">
-            22縣市 × 10種玩法 = 220 種深度玩法
+          <p className="text-base text-[#666] mb-4">
+            台北・台南・花蓮 × 各10種玩法，點選主題即刻生成行程
           </p>
 
-          {/* CTA buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 w-full max-w-sm">
+          <div className="flex justify-center gap-3">
             <button
-              className="btn-primary flex-1 py-3 text-base"
-              onClick={() => document.getElementById('featured').scrollIntoView({ behavior: 'smooth' })}
-            >
-              探索玩法
-            </button>
-            <button
-              className="flex-1 py-3 text-base font-semibold border-2 border-[#FF6B35] text-[#FF6B35] rounded-lg hover:bg-[#FF6B35] hover:text-white transition-all"
+              className="btn-primary px-5 py-2 text-sm"
               onClick={() => setShowFilter(true)}
             >
               告訴我你想怎麼玩
             </button>
-          </div>
-        </div>
-
-        {/* Scroll indicator */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-[#999]">
-          <span className="text-xs">往下探索</span>
-          <div className="bounce-down">
-            <ArrowDownIcon size={20} color="#FF6B35" />
+            <button
+              className="px-5 py-2 text-sm font-semibold border-2 border-[#FF6B35] text-[#FF6B35] rounded-lg hover:bg-[#FF6B35] hover:text-white transition-all"
+              onClick={() => navigate('/explore')}
+            >
+              依城市探索
+            </button>
           </div>
         </div>
       </section>
 
       {/* ── FEATURED CARDS ───────────────────────────────────── */}
-      <section id="featured" className="px-4 sm:px-6 py-16 max-w-6xl mx-auto">
+      <section id="featured" className="px-4 sm:px-6 pt-6 pb-12 max-w-6xl mx-auto">
         <div className="text-center mb-10">
           <h2 className="text-2xl sm:text-3xl font-bold text-[#333] mb-2">
             精選旅遊主題

@@ -1,0 +1,36 @@
+/**
+ * 對應 themes.js 的 id → Excel 的縣市 + 玩法主題
+ * Excel 縣市格式：台北市 / 台南市 / 花蓮縣
+ */
+export const THEME_EXCEL_MAP = {
+  'taipei-night':      { city: '台北市', theme: '不夜城' },
+  'taipei-oasis':      { city: '台北市', theme: '都市綠洲' },
+  'taipei-korean':     { city: '台北市', theme: '明星潮流' },
+  'taipei-hk':         { city: '台北市', theme: '港星記憶' },
+  'taipei-ai-food':    { city: '台北市', theme: 'AI教父美食地圖' },
+  'taipei-anime':      { city: '台北市', theme: '動漫聖地' },
+  'taipei-instagram':  { city: '台北市', theme: '網美打卡' },
+  'taipei-indie':      { city: '台北市', theme: '文青之旅' },
+  'taipei-hiking':     { city: '台北市', theme: '步道健行' },
+  'taipei-shopping':   { city: '台北市', theme: '購物血拼' },
+  'tainan-ancient':    { city: '台南市', theme: '古都巡禮' },
+  'tainan-midnight':   { city: '台南市', theme: '凌晨美食' },
+  'tainan-oldshop':    { city: '台南市', theme: '百年老店' },
+  'tainan-sweet':      { city: '台南市', theme: '螞蟻人的台南' },
+  'tainan-michelin':   { city: '台南市', theme: '米其林之旅' },
+  'tainan-amazon':     { city: '台南市', theme: '台版亞馬遜' },
+  'tainan-temple':     { city: '台南市', theme: '廟宇奇觀' },
+  'tainan-oldhouse':   { city: '台南市', theme: '老屋時光' },
+  'tainan-instagram':  { city: '台南市', theme: '網美打卡' },
+  'tainan-indie':      { city: '台南市', theme: '文青之旅' },
+  'hualien-canyon':    { city: '花蓮縣', theme: '峽谷秘境' },
+  'hualien-tribe':     { city: '花蓮縣', theme: '部落文化' },
+  'hualien-sea':       { city: '花蓮縣', theme: '太平洋看海放空' },
+  'hualien-bike':      { city: '花蓮縣', theme: '單車日記' },
+  'hualien-kengo':     { city: '花蓮縣', theme: '老屋裡的昭和' },
+  'hualien-family':    { city: '花蓮縣', theme: '親子放電' },
+  'hualien-local':     { city: '花蓮縣', theme: '在地老味' },
+  'hualien-hiking':    { city: '花蓮縣', theme: '步道健行' },
+  'hualien-instagram': { city: '花蓮縣', theme: '網美打卡' },
+  'hualien-indie':     { city: '花蓮縣', theme: '文青之旅' },
+};

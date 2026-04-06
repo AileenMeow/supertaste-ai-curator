@@ -6,6 +6,8 @@ import {
   ArrowLeftIcon, ClockIcon, PinIcon, MoneyIcon, QuoteIcon,
   LinkIcon, StarIcon, TransportIcon, HeartIcon,
 } from '../components/icons';
+import SourceCitation from '../components/ui/SourceCitation';
+import { useSavedSpots } from '../store/savedSpotsStore';
 
 // Loading skeleton
 function LoadingSkeleton() {
@@ -28,28 +30,47 @@ function LoadingSkeleton() {
 }
 
 // Timeline stop card
-function TimelineCard({ stop, index }) {
+function TimelineCard({ stop, index, themeId, themeName, themeCity }) {
+  const { toggleSpot, isSpotSaved } = useSavedSpots();
+  const saved = isSpotSaved(stop, themeId);
+  const isCommunity = !stop.article_url;
+
   return (
     <div className="relative">
       {/* Timeline connector */}
       <div className="absolute left-6 top-14 bottom-0 w-0.5 bg-gradient-to-b from-[#FF6B35]/40 to-transparent" />
 
-      <div className="bg-white rounded-xl shadow-card overflow-hidden mb-6">
+      <div className={`bg-white rounded-xl shadow-card overflow-hidden mb-6 transition-all ${saved ? 'ring-2 ring-[#FF6B35]/40' : ''}`}>
         {/* Time header */}
         <div className="px-6 py-4 border-b border-[#F5F5F5] flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#FF6B35] to-[#FFD23F] flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
             {String(index + 1).padStart(2, '0')}
           </div>
-          <div>
+          <div className="flex-1">
             <div className="flex items-center gap-2 text-[#FF6B35] font-bold text-lg">
               <ClockIcon size={16} color="#FF6B35" />
               {stop.time}
             </div>
             <div className="font-bold text-[#333] text-base">{stop.name}</div>
           </div>
+          {/* Save button */}
+          <button
+            onClick={() => toggleSpot(stop, themeId, themeName, themeCity)}
+            className="p-2 rounded-full hover:bg-[#FFF0EB] transition-colors flex-shrink-0"
+            aria-label={saved ? '取消收藏' : '加入收藏'}
+          >
+            <HeartIcon size={22} color="#FF6B35" filled={saved} />
+          </button>
         </div>
 
         <div className="p-6 space-y-4">
+          {/* Community badge */}
+          {isCommunity && (
+            <div className="inline-flex items-center gap-1 bg-[#F0F7FF] text-[#4A90E2] text-xs font-medium px-2.5 py-1 rounded-full">
+              💬 網友推薦
+            </div>
+          )}
+
           {/* Location */}
           <div className="flex items-start gap-2 text-sm text-[#666]">
             <PinIcon size={16} color="#999" className="mt-0.5" />
@@ -100,9 +121,9 @@ function TimelineCard({ stop, index }) {
           </div>
 
           {/* Article link */}
-          {stop.article_title && (
+          {stop.article_title && stop.article_url && (
             <a
-              href={stop.article_url || '#'}
+              href={stop.article_url}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-sm text-[#FF6B35] hover:underline"
@@ -117,6 +138,27 @@ function TimelineCard({ stop, index }) {
   );
 }
 
+// Floating saved spots bar
+function SavedBar({ count, onView }) {
+  if (count === 0) return null;
+  return (
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-fade-up">
+      <div className="bg-[#333] text-white rounded-2xl px-5 py-3 flex items-center gap-4 shadow-xl">
+        <div className="flex items-center gap-2">
+          <HeartIcon size={18} color="#FF6B35" filled />
+          <span className="text-sm font-medium">已收藏 {count} 個景點</span>
+        </div>
+        <button
+          onClick={onView}
+          className="bg-[#FF6B35] text-white text-sm font-bold px-4 py-1.5 rounded-xl hover:bg-[#E55A25] transition-colors"
+        >
+          查看收藏
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function ItineraryPage() {
   const { themeId } = useParams();
   const navigate = useNavigate();
@@ -124,8 +166,9 @@ export default function ItineraryPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [streamText, setStreamText] = useState('');
-  const [saved, setSaved] = useState(false);
   const hasFetched = useRef(false);
+  const { savedSpots } = useSavedSpots();
+  const savedCountForTheme = savedSpots.filter((s) => s._themeId === themeId).length;
 
   const theme = THEMES.find((t) => t.id === themeId);
 
@@ -182,12 +225,7 @@ export default function ItineraryPage() {
           <Icon size={20} />
           <span className="text-sm font-bold text-[#333] truncate max-w-[160px]">{theme.name}</span>
         </div>
-        <button
-          onClick={() => setSaved((s) => !s)}
-          className="flex items-center gap-1 text-sm text-[#999] hover:text-[#FF6B35] transition-colors"
-        >
-          <HeartIcon size={20} color={saved ? '#FF6B35' : '#999'} filled={saved} />
-        </button>
+        <div className="w-8" />
       </div>
 
       {/* Hero banner */}
@@ -286,7 +324,14 @@ export default function ItineraryPage() {
               <div>
                 <h2 className="font-bold text-[#333] text-lg mb-4 px-1">時間軸行程</h2>
                 {itinerary.itinerary.map((stop, i) => (
-                  <TimelineCard key={i} stop={stop} index={i} />
+                  <TimelineCard
+                    key={i}
+                    stop={stop}
+                    index={i}
+                    themeId={themeId}
+                    themeName={theme.name}
+                    themeCity={theme.city}
+                  />
                 ))}
               </div>
             )}
@@ -360,6 +405,15 @@ export default function ItineraryPage() {
                 </div>
               </div>
             )}
+
+            {/* Source citation */}
+            <SourceCitation spots={itinerary.itinerary} />
+
+            {/* Floating save bar */}
+            <SavedBar
+              count={savedCountForTheme}
+              onView={() => navigate('/saved')}
+            />
 
             {/* CTA */}
             <div className="text-center py-6">
