@@ -7,7 +7,9 @@ import {
   LinkIcon, StarIcon, TransportIcon, HeartIcon,
 } from '../components/icons';
 import SourceCitation from '../components/ui/SourceCitation';
+import SpotPicker from '../components/ui/SpotPicker';
 import { useSavedSpots } from '../store/savedSpotsStore';
+import { THEME_EXCEL_MAP } from '../data/themeMapping';
 
 // Loading skeleton
 function LoadingSkeleton() {
@@ -162,8 +164,12 @@ function SavedBar({ count, onView }) {
 export default function ItineraryPage() {
   const { themeId } = useParams();
   const navigate = useNavigate();
+  // phase: 'picking' | 'loading' | 'done'
+  const [phase, setPhase] = useState('picking');
+  const [themeSpots, setThemeSpots] = useState([]);
+  const [themeImages, setThemeImages] = useState([]);
+  const [spotsLoading, setSpotsLoading] = useState(true);
   const [itinerary, setItinerary] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [streamText, setStreamText] = useState('');
   const hasFetched = useRef(false);
@@ -172,30 +178,56 @@ export default function ItineraryPage() {
 
   const theme = THEMES.find((t) => t.id === themeId);
 
+  // Check session cache — if already generated, skip picker
   useEffect(() => {
-    if (!theme || hasFetched.current) return;
-    hasFetched.current = true;
-
-    // Check session cache
+    if (!theme) return;
     const cached = sessionStorage.getItem(`itinerary_${themeId}`);
     if (cached) {
       try {
         setItinerary(JSON.parse(cached));
-        setLoading(false);
+        setPhase('done');
+        setSpotsLoading(false);
         return;
       } catch {}
     }
+    // Load article images + Excel spots in parallel
+    fetch('/data/theme-images.json')
+      .then(r => r.ok ? r.json() : {})
+      .then(data => setThemeImages(data[themeId] || []))
+      .catch(() => {});
 
-    generateItinerary(theme, (partial) => {
-      setStreamText(partial);
-    })
+    import('../utils/dataLoader').then(({ loadDataFromExcel }) =>
+      loadDataFromExcel().then(data => {
+        const mapping = THEME_EXCEL_MAP[themeId];
+        if (mapping) {
+          const { city, theme: themeName } = mapping;
+          const spots = data.spots.filter(s => s.city === city && s.theme === themeName);
+          setThemeSpots(spots);
+        }
+        setSpotsLoading(false);
+      }).catch(() => setSpotsLoading(false))
+    );
+  }, [themeId, theme]);
+
+  const runGenerate = (selectedSpots) => {
+    if (hasFetched.current) return;
+    hasFetched.current = true;
+    setPhase('loading');
+    setError(null);
+    generateItinerary(theme, (partial) => setStreamText(partial), selectedSpots)
       .then((data) => {
         setItinerary(data);
         sessionStorage.setItem(`itinerary_${themeId}`, JSON.stringify(data));
+        setPhase('done');
       })
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, [themeId, theme]);
+      .catch((err) => {
+        setError(err.message);
+        setPhase('loading'); // stay in loading state to show error
+      });
+  };
+
+  const handleAiPick = () => runGenerate(null);
+  const handleCustomGenerate = (selectedSpots) => runGenerate(selectedSpots);
 
   if (!theme) {
     return (
@@ -249,9 +281,22 @@ export default function ItineraryPage() {
         </div>
       </div>
 
+      {/* Spot Picker Phase */}
+      {phase === 'picking' && (
+        <SpotPicker
+          theme={theme}
+          spots={themeSpots}
+          images={themeImages}
+          loading={spotsLoading}
+          onGenerate={handleCustomGenerate}
+          onAiPick={handleAiPick}
+        />
+      )}
+
       {/* Content */}
+      {phase !== 'picking' && (
       <div className="max-w-2xl mx-auto px-4 py-8">
-        {loading && (
+        {phase === 'loading' && (
           <div className="space-y-4">
             {/* Streaming indicator */}
             <div className="bg-white rounded-xl p-5 shadow-card flex items-center gap-3">
@@ -279,8 +324,8 @@ export default function ItineraryPage() {
               className="btn-primary text-sm py-2"
               onClick={() => {
                 hasFetched.current = false;
-                setLoading(true);
                 setError(null);
+                setPhase('picking');
               }}
             >
               重試
@@ -427,6 +472,7 @@ export default function ItineraryPage() {
           </div>
         )}
       </div>
+      )}
     </div>
   );
 }

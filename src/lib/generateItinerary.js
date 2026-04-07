@@ -42,21 +42,39 @@ async function getExcelSpots(themeId) {
   return { articles, places };
 }
 
-export async function generateItinerary(theme, onStream) {
-  // 嘗試載入預先生成的靜態 JSON（速度最快）
-  try {
-    const res = await fetch(`/data/itineraries/${theme.id}.json`);
-    if (res.ok) {
-      const data = await res.json();
-      onStream?.(JSON.stringify(data));
-      return data;
+export async function generateItinerary(theme, onStream, selectedSpots = null) {
+  // 沒有自訂選擇時，嘗試載入預先生成的靜態 JSON（速度最快）
+  if (!selectedSpots) {
+    try {
+      const res = await fetch(`/data/itineraries/${theme.id}.json`);
+      if (res.ok) {
+        const data = await res.json();
+        onStream?.(JSON.stringify(data));
+        return data;
+      }
+    } catch {
+      // 無預先生成的檔案，fallback 到 API
     }
-  } catch {
-    // 無預先生成的檔案，fallback 到 API
   }
 
-  // 從 Excel 取出真實資料
-  const { articles, places } = await getExcelSpots(theme.id);
+  // 決定要使用的景點資料
+  let articles, places;
+  if (selectedSpots && selectedSpots.length > 0) {
+    // 使用使用者自選的景點
+    articles = selectedSpots
+      .filter(s => s.url)
+      .map(s => ({ title: s.name, url: s.url, quote: s.quote, priceRange: s.priceRange }));
+    places = selectedSpots
+      .map(s => ({ title: s.name, quote: s.quote, priceRange: s.priceRange, category: s.category, type: s.type }));
+    if (places.length < 3) {
+      places = [...places, ...articles];
+    }
+  } else {
+    // 從 Excel 取出真實資料
+    const result = await getExcelSpots(theme.id);
+    articles = result.articles;
+    places = result.places;
+  }
 
   const userMessage = JSON.stringify({
     city: theme.city,
@@ -67,6 +85,7 @@ export async function generateItinerary(theme, onStream) {
     // 真實食尚玩家資料 — Claude 只能用這些
     articles,  // 有 url 的文章，供 related_articles 使用
     places,    // 個別店家/景點，供 itinerary 使用
+    ...(selectedSpots ? { user_selected: true } : {}),
   });
 
   let fullText = '';

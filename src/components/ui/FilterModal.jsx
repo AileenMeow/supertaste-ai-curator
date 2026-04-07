@@ -38,11 +38,19 @@ export default function FilterModal({ onClose }) {
     if (matched.length === 1) {
       onClose();
       navigate(`/itinerary/${matched[0].id}`);
-    } else {
+      return;
+    }
+
+    // 看看涉及幾個城市
+    const cities = [...new Set(matched.map(t => t.city))];
+    if (cities.length > 1) {
+      // 多城市 → 先選城市
       onClose();
-      navigate('/explore', {
-        state: { results: matched, filters: { styles, regions, duration } },
-      });
+      navigate('/explore', { state: { results: matched, filters: { styles, regions, duration }, showCityPicker: true } });
+    } else {
+      // 同城市 → 直接列出主題
+      onClose();
+      navigate('/explore', { state: { results: matched, filters: { styles, regions, duration } } });
     }
   };
 

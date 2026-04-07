@@ -70,7 +70,7 @@ const THEME_EXCEL_MAP = {
 const THEME_DISPLAY = {
   'taipei-night': { city: '台北', name: '不夜城', description: '晚上10點~凌晨4點：陽明山夜景+24小時誠品+深夜電影院+PUB餐酒館', duration: '半日遊', tags: ['夜生活', '都會'] },
   'taipei-oasis': { city: '台北', name: '都市綠洲', description: '15分鐘逃離水泥叢林：大安森林公園+松山文創老樹+北投公園溫泉森林', duration: '一日遊', tags: ['戶外', '療癒'] },
-  'taipei-korean': { city: '台北', name: '明星潮流', description: '韓系美食+韓系裝潢+KPOP周邊店+韓星踩點+韓劇同款打卡', duration: '一日遊', tags: ['美食', '網美'] },
+  'taipei-korean': { city: '台北', name: '明星潮流', description: '明星潮流聚集地+KPOP周邊+韓系美食+韓系裝潢', duration: '一日遊', tags: ['美食', '網美'] },
   'taipei-hk': { city: '台北', name: '港星記憶', description: '港式茶餐廳+林青霞踩點+復古港風+80-90年代懷舊', duration: '半日遊', tags: ['文化', '美食'] },
   'taipei-ai-food': { city: '台北', name: 'AI教父美食地圖', description: '黃仁勳路線+科技人聚餐地+文華東方5分鐘步行圈', duration: '一日遊', tags: ['美食', '話題'] },
   'taipei-anime': { city: '台北', name: '動漫聖地', description: '光華商場+西門町動漫街+主題咖啡廳+日系拉麵炸豬排', duration: '一日遊', tags: ['動漫', '購物'] },
@@ -92,7 +92,7 @@ const THEME_DISPLAY = {
   'hualien-tribe': { city: '花蓮', name: '部落文化', description: '原住民深度體驗：部落美食+工藝體驗+文化導覽', duration: '一日遊', tags: ['文化', '體驗'] },
   'hualien-sea': { city: '花蓮', name: '太平洋看海放空', description: '七星潭聽浪+曼波海灘天空之鏡+台11線海岸', duration: '一日遊', tags: ['海景', '放空'] },
   'hualien-bike': { city: '花蓮', name: '單車日記', description: '電動自行車慢遊：七星潭車道+台11線海岸線+田園小路', duration: '一日遊', tags: ['單車', '戶外'] },
-  'hualien-kengo': { city: '花蓮', name: '老屋裡的昭和', description: '日式老宅咖啡+昭和時代建築+花蓮文創', duration: '一日遊', tags: ['建築', '文創'] },
+  'hualien-kengo': { city: '花蓮', name: '老屋裡的昭和', description: '日式老宅咖啡+昭和時代建築+花蓮文創園區', duration: '一日遊', tags: ['建築', '文創'] },
   'hualien-family': { city: '花蓮', name: '親子放電', description: '726公頃兆豐農場+月崖灣親子農場+童話民宿+生態體驗', duration: '2-3天', tags: ['親子', '農場'] },
   'hualien-local': { city: '花蓮', name: '在地老味', description: '炸蛋蔥油餅+花蓮三大紅茶+錢記早餐+50年老店', duration: '半日遊', tags: ['在地', '美食'] },
   'hualien-hiking': { city: '花蓮', name: '步道健行', description: '撒固兒瀑布10分鐘攻頂+輕鬆步道群+親近大自然', duration: '半日遊', tags: ['健行', '瀑布'] },

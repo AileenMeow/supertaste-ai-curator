@@ -17,6 +17,7 @@ export default {
       },
       fontFamily: {
         sans: ['Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', 'sans-serif'],
+        kuaile: ['ZCOOL KuaiLe', 'PingFang TC', 'sans-serif'],
       },
       borderRadius: {
         'sm': '8px',
