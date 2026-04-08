@@ -733,7 +733,7 @@ export default function ItineraryPage() {
                     <p className="text-gray-600 text-lg mt-2">食尚玩家嚴選，{theme.city}周邊美食</p>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {themeSpots.filter(s => /美食|餐|食/.test(s.type || '')).slice(0, 3).map((r, i) => (
+                    {themeSpots.filter(s => s.type === 'restaurant').slice(0, 3).map((r, i) => (
                       <div key={i} className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all duration-300">
                         <div className={`h-48 bg-gradient-to-br ${theme.coverGradient} relative`}>
                           {themeImages[i] && (
