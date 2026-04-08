@@ -11,6 +11,12 @@ import SpotPicker from '../components/ui/SpotPicker';
 import { useSavedSpots } from '../store/savedSpotsStore';
 import { THEME_EXCEL_MAP } from '../data/themeMapping';
 import spotsData from '../data/supertaste_spots_data.json';
+import { mapSpotData } from '../utils/spotDataMapper';
+import { planItinerary } from '../lib/aiPlanner';
+import {
+  HdCompass, HdCalendar, HdFork, HdPin, HdMask, HdBag, HdTag,
+  HdCoin, HdClock, HdHours, HdWalk, HdNews, HdRefresh,
+} from '../components/icons/HandDrawn';
 
 // Lookup real theme data (29 themes) by themeId via city + themeName mapping
 function getRealTheme(themeId) {
@@ -43,7 +49,9 @@ function LoadingScreen() {
           <div className="absolute inset-0 border-[6px] border-orange-200 border-t-orange-500 rounded-full animate-spin" />
           <div className="absolute inset-4 border-[4px] border-pink-200 border-b-pink-400 rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '2s' }} />
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-7xl animate-bounce" style={{ animationDuration: '2s' }}>🧭</div>
+            <div className="animate-bounce" style={{ animationDuration: '2s' }}>
+              <HdCompass size={96} color="#FF7847" />
+            </div>
           </div>
         </div>
 
@@ -81,22 +89,33 @@ function LoadingScreen() {
 function pad(n) { return String(n).padStart(2, '0'); }
 function fmtTime(mins) { return `${pad(Math.floor(mins / 60))}:${pad(mins % 60)}`; }
 
-function buildTimeline(stops) {
+// Estimate travel time between two spots based on area difference
+function estimateTravel(a, b) {
+  if (!a || !b) return { mins: 15, method: '步行' };
+  const aArea = (a.area || '').trim();
+  const bArea = (b.area || '').trim();
+  if (!aArea || !bArea || aArea === bArea) {
+    return { mins: 10, method: '步行' };
+  }
+  // Different district → estimate longer
+  return { mins: 25, method: '捷運 / 公車' };
+}
+
+function buildTimeline(stops, themeName = '', lunchPick = null, dinnerPick = null) {
   const items = [];
-  let cur = 9 * 60; // start 09:00
-  let lunchAdded = false;
+  const isNightTheme = /不夜|夜|晚|凌晨/.test(themeName);
+  let cur = isNightTheme ? 18 * 60 : 9 * 60;
+  let lunchAdded = isNightTheme;
   let dinnerAdded = false;
 
   stops.forEach((spot, idx) => {
-    // Insert lunch around 12:00
-    if (!lunchAdded && cur >= 12 * 60) {
-      items.push({ type: 'meal', time: fmtTime(cur), mealType: 'lunch', duration: '60-90 分鐘' });
+    if (!lunchAdded && cur >= 11 * 60 + 30 && cur <= 14 * 60) {
+      items.push({ type: 'meal', time: fmtTime(cur), mealType: 'lunch', duration: '60-90 分鐘', pick: lunchPick });
       cur += 75;
       lunchAdded = true;
     }
-    // Insert dinner around 18:00
-    if (!dinnerAdded && cur >= 18 * 60) {
-      items.push({ type: 'meal', time: fmtTime(cur), mealType: 'dinner', duration: '60-90 分鐘' });
+    if (!dinnerAdded && cur >= 18 * 60 && cur <= 20 * 60 + 30) {
+      items.push({ type: 'meal', time: fmtTime(cur), mealType: 'dinner', duration: '60-90 分鐘', pick: dinnerPick });
       cur += 75;
       dinnerAdded = true;
     }
@@ -109,10 +128,11 @@ function buildTimeline(stops) {
     });
     cur += 90;
 
-    // Travel between spots
+    // Travel between spots — area-aware
     if (idx < stops.length - 1) {
-      items.push({ type: 'travel', travelTime: 15, travelMethod: '捷運 / 步行' });
-      cur += 15;
+      const travel = estimateTravel(spot, stops[idx + 1]);
+      items.push({ type: 'travel', travelTime: travel.mins, travelMethod: travel.method });
+      cur += travel.mins;
     }
   });
   return items;
@@ -131,7 +151,7 @@ function TimelineItem({ item, isLast, image, themeId, themeName, themeCity }) {
         </div>
         <div className="flex-1 pb-4">
           <div className="bg-gray-50 rounded-xl p-3 border-2 border-dashed border-gray-200 inline-flex items-center gap-2 text-sm text-gray-600">
-            🚶 移動約 {item.travelTime} 分鐘 · {item.travelMethod}
+            <HdWalk size={16} color="#6b7280" /> 移動約 {item.travelTime} 分鐘 · {item.travelMethod}
           </div>
         </div>
       </div>
@@ -151,13 +171,31 @@ function TimelineItem({ item, isLast, image, themeId, themeName, themeCity }) {
         </div>
         <div className="flex-1">
           <div className="bg-blue-50 rounded-xl p-5 border-2 border-blue-100">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-2xl">🍽️</span>
+            <div className="flex items-center gap-2 mb-2">
+              <HdFork size={22} color="#1d4ed8" />
               <h3 className="text-lg font-black text-gray-900">
                 {item.mealType === 'lunch' ? '午餐時間' : '晚餐時間'}
               </h3>
+              <span className="text-[10px] font-bold bg-blue-200 text-blue-800 px-2 py-0.5 rounded-full">AI 推薦</span>
             </div>
-            <p className="text-gray-600 text-sm">建議在附近餐廳用餐，約 60-90 分鐘</p>
+            {item.pick ? (
+              <div className="bg-white rounded-lg p-3 border border-blue-200">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                  <span className="bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">食尚報導</span>
+                  {item.pick.area && <span className="text-gray-500 text-xs">{item.pick.area}</span>}
+                </div>
+                <h4 className="font-black text-gray-900 text-base mb-1">{item.pick.name}</h4>
+                {item.pick.tagline && <p className="text-gray-600 text-sm line-clamp-2">{item.pick.tagline}</p>}
+                {item.pick.source_url && (
+                  <a href={item.pick.source_url} target="_blank" rel="noopener noreferrer"
+                    className="text-orange-600 hover:text-orange-700 text-xs font-semibold mt-1 inline-block">
+                    查看食尚玩家完整報導 →
+                  </a>
+                )}
+              </div>
+            ) : (
+              <p className="text-gray-600 text-sm">建議在附近餐廳用餐，約 60-90 分鐘</p>
+            )}
           </div>
         </div>
       </div>
@@ -169,12 +207,13 @@ function TimelineItem({ item, isLast, image, themeId, themeName, themeCity }) {
   const saved = isSpotSaved(stop, themeId);
   const type = inferType(stop);
   const typeMap = {
-    restaurant: { label: '🍽️ 美食', cls: 'bg-blue-100 text-blue-700' },
-    attraction: { label: '📍 景點', cls: 'bg-green-100 text-green-700' },
-    experience: { label: '🎭 文化', cls: 'bg-purple-100 text-purple-700' },
-    shop:       { label: '🛍️ 購物', cls: 'bg-pink-100 text-pink-700' },
+    restaurant: { label: '美食', Icon: HdFork, cls: 'bg-blue-100 text-blue-700', iconColor: '#1d4ed8' },
+    attraction: { label: '景點', Icon: HdPin,  cls: 'bg-green-100 text-green-700', iconColor: '#15803d' },
+    experience: { label: '文化', Icon: HdMask, cls: 'bg-purple-100 text-purple-700', iconColor: '#7c3aed' },
+    shop:       { label: '購物', Icon: HdBag,  cls: 'bg-pink-100 text-pink-700', iconColor: '#be185d' },
   };
   const tBadge = typeMap[type];
+  const TIcon = tBadge.Icon;
 
   return (
     <div className="flex gap-4 sm:gap-6 mb-6">
@@ -197,17 +236,33 @@ function TimelineItem({ item, isLast, image, themeId, themeName, themeCity }) {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${tBadge.cls}`}>{tBadge.label}</span>
+                {stop.source_url && (
+                  <span className="bg-orange-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                    <HdTag size={11} color="#fff" /> 食尚報導
+                  </span>
+                )}
+                <span className={`text-xs font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1 ${tBadge.cls}`}>
+                  <TIcon size={12} color={tBadge.iconColor} /> {tBadge.label}
+                </span>
                 {stop.area && <span className="text-gray-500 text-xs">{stop.area}</span>}
               </div>
               <h3 className="text-lg sm:text-xl font-black text-gray-900 mb-1.5 leading-tight">{stop.name}</h3>
-              {(stop.tagline || stop.quote) && (
-                <p className="text-gray-600 text-sm mb-2 line-clamp-2">{stop.tagline || stop.quote}</p>
+              {stop.tagline && (
+                <p className="text-gray-700 text-sm font-medium mb-2 line-clamp-2">{stop.tagline}</p>
               )}
-              <div className="flex items-center gap-3 text-xs text-gray-500 flex-wrap">
-                {stop.budget_per_person && <span>💰 {stop.budget_per_person}</span>}
-                {stop.google_rating && <span>⭐ {stop.google_rating}</span>}
+              <div className="flex items-center gap-3 text-xs text-gray-500 flex-wrap mb-2">
+                {stop.budget && <span className="inline-flex items-center gap-1"><HdCoin size={13} color="#6b7280" /> {stop.budget}</span>}
+                {stop.suggestedDuration && <span className="inline-flex items-center gap-1"><HdClock size={13} color="#6b7280" /> 停留 {stop.suggestedDuration}</span>}
+                {stop.businessHours && <span className="inline-flex items-center gap-1"><HdHours size={13} color="#6b7280" /> {stop.businessHours}</span>}
               </div>
+              {stop.source_url && (
+                <a href={stop.source_url}
+                  target="_blank" rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-orange-600 hover:text-orange-700 text-xs font-semibold inline-flex items-center gap-1">
+                  查看食尚玩家完整報導 →
+                </a>
+              )}
             </div>
             <button
               onClick={(e) => { e.stopPropagation(); toggleSpot(stop, themeId, themeName, themeCity); }}
@@ -503,21 +558,59 @@ export default function ItineraryPage() {
     setSpotsLoading(false);
   }, [themeId, theme]);
 
-  const runGenerate = (selectedSpots) => {
+  const runGenerate = async (selectedSpots) => {
     if (hasFetched.current) return;
     hasFetched.current = true;
     setPhase('loading');
     setError(null);
-    generateItinerary(theme, (partial) => setStreamText(partial), selectedSpots)
-      .then((data) => {
-        setItinerary(data);
-        sessionStorage.setItem(`itinerary_${themeId}`, JSON.stringify(data));
-        setPhase('done');
-      })
-      .catch((err) => {
-        setError(err.message);
-        setPhase('loading'); // stay in loading state to show error
-      });
+
+    const sourceSpots = (selectedSpots && selectedSpots.length > 0)
+      ? selectedSpots
+      : (realTheme?.spots || []).slice(0, 8);
+
+    const allThemeSpots = realTheme?.spots || [];
+
+    try {
+      // Call Claude: gets story + ordered route + meal picks in one shot
+      const ai = await planItinerary({ theme, selectedSpots: sourceSpots, allThemeSpots });
+
+      // Reorder per AI suggestion (fallback to original order if name doesn't match)
+      const orderedSource = ai.orderedNames.length > 0
+        ? ai.orderedNames.map(n => sourceSpots.find(s => s.name === n)).filter(Boolean)
+        : sourceSpots;
+
+      const mappedStops = orderedSource.map(mapSpotData).filter(Boolean);
+
+      // Resolve meal picks → mapped spot objects
+      const findInPool = (name) => {
+        if (!name) return null;
+        const raw = allThemeSpots.find(s => s.name === name);
+        return raw ? mapSpotData(raw) : null;
+      };
+
+      const data = {
+        story: ai.story || realTheme?.slogan || theme.description,
+        itinerary: mappedStops,
+        lunchPick: findInPool(ai.lunchPick),
+        dinnerPick: findInPool(ai.dinnerPick),
+        highlights: [],
+      };
+
+      setItinerary(data);
+      sessionStorage.setItem(`itinerary_${themeId}`, JSON.stringify(data));
+      setPhase('done');
+    } catch (err) {
+      console.error('[AI planner] failed:', err);
+      // Detect credit / quota errors vs others
+      const msg = String(err?.message || err);
+      const isQuota = /credit|quota|billing|insufficient|429|payment/i.test(msg);
+      setError(isQuota
+        ? '錢不夠用了 QAQ\n\nAileen 的 API 額度用完了，請通知 Aileen 並歡迎贊助費用 🙏\n\n（你還是可以瀏覽景點，AI 規劃功能暫時關閉）'
+        : `AI 服務暫時無法使用：${msg}`);
+      setPhase('loading');
+      // Allow retry
+      hasFetched.current = false;
+    }
   };
 
   const handleAiPick = () => runGenerate(null);
@@ -555,14 +648,21 @@ export default function ItineraryPage() {
       <div>
       {phase === 'loading' && !error && <LoadingScreen />}
       {phase === 'loading' && error && (
-        <div className="max-w-2xl mx-auto px-4 py-20">
-          <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
-            <p className="text-red-600 font-bold mb-2">行程生成失敗</p>
-            <p className="text-sm text-red-500 mb-4">{error}</p>
-            <button className="btn-primary text-sm py-2"
-              onClick={() => { hasFetched.current = false; setError(null); setPhase('picking'); }}>
-              重試
-            </button>
+        <div className="min-h-screen flex items-center justify-center px-6 bg-gradient-to-br from-orange-50 to-yellow-50">
+          <div className="max-w-lg w-full bg-white border-2 border-orange-200 rounded-3xl p-8 text-center shadow-xl">
+            <div className="text-6xl mb-4">💸</div>
+            <p className="text-orange-600 font-black text-xl mb-3">AI 服務暫停中</p>
+            <p className="text-sm text-gray-600 mb-6 whitespace-pre-line leading-relaxed">{error}</p>
+            <div className="flex gap-3 justify-center flex-wrap">
+              <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-full font-bold transition-all"
+                onClick={() => navigate('/')}>
+                返回首頁
+              </button>
+              <button className="bg-[#FF7847] hover:bg-[#E04400] text-white px-6 py-3 rounded-full font-bold transition-all"
+                onClick={() => { setError(null); setPhase('picking'); }}>
+                重新挑選景點
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -607,10 +707,13 @@ export default function ItineraryPage() {
 
             {/* ── Timeline ────────────────────────────── */}
             <div className="max-w-5xl mx-auto px-6 py-12">
-              <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mb-2">📅 一日行程時間軸</h2>
+              <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mb-2 flex items-center gap-3">
+                <HdCalendar size={28} color="#1f2937" />
+                一日行程時間軸
+              </h2>
               <p className="text-gray-500 text-sm mb-8">已考慮營業時間、移動動線與用餐時間</p>
               <div className="bg-white rounded-2xl shadow-sm p-6 sm:p-8">
-                {buildTimeline(stops).map((item, i, arr) => (
+                {buildTimeline(stops, theme.name, itinerary.lunchPick, itinerary.dinnerPick).map((item, i, arr) => (
                   <TimelineItem key={i} item={item} isLast={i === arr.length - 1}
                     image={item.type === 'spot' ? themeImages[i % Math.max(themeImages.length, 1)] : null}
                     themeId={themeId} themeName={theme.name} themeCity={theme.city} />
@@ -623,8 +726,8 @@ export default function ItineraryPage() {
               <div className="bg-orange-50 py-16">
                 <div className="max-w-7xl mx-auto px-6">
                   <div className="text-center mb-10">
-                    <div className="inline-block bg-orange-100 text-orange-600 px-4 py-1.5 rounded-full text-sm mb-3">
-                      🍽️ 附近用餐推薦
+                    <div className="inline-flex items-center gap-1.5 bg-orange-100 text-orange-600 px-4 py-1.5 rounded-full text-sm mb-3">
+                      <HdFork size={14} color="#ea580c" /> 附近用餐推薦
                     </div>
                     <h2 className="text-3xl sm:text-4xl font-black text-gray-900">逛累了？這些餐廳就在附近</h2>
                     <p className="text-gray-600 text-lg mt-2">食尚玩家嚴選，{theme.city}周邊美食</p>
@@ -697,7 +800,25 @@ export default function ItineraryPage() {
               )}
             </div>
 
-            <SourceCitation spots={stops} />
+            {/* Data source — show all supertaste articles */}
+            <div className="max-w-5xl mx-auto px-6 pb-8">
+              <div className="bg-orange-50 border-2 border-orange-200 rounded-2xl p-6">
+                <h3 className="text-lg font-black text-gray-900 mb-4 flex items-center gap-2">
+                  <HdNews size={22} color="#1f2937" /> 資料來源
+                </h3>
+                <div className="text-sm font-medium text-gray-700 mb-3">食尚玩家報導：</div>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {Array.from(new Map(stops.filter(s => s.source_url).map(s => [s.source_url, s])).values()).map((s, i) => (
+                    <a key={i} href={s.source_url}
+                      target="_blank" rel="noopener noreferrer"
+                      className="text-orange-600 hover:text-orange-700 text-sm bg-white px-3 py-1.5 rounded-full border border-orange-200 hover:border-orange-400 transition-all">
+                      {s.name}
+                    </a>
+                  ))}
+                </div>
+                <p className="text-xs text-gray-500">本行程由 AI 根據食尚玩家達人推薦內容，結合營業時間、移動動線自動規劃生成</p>
+              </div>
+            </div>
             <SavedBar count={savedCountForTheme} onView={() => navigate('/saved')} />
 
             <div className="flex gap-4 justify-center flex-wrap py-10">
@@ -705,7 +826,7 @@ export default function ItineraryPage() {
                 onClick={() => navigate('/')}>
                 ← 返回首頁
               </button>
-              <button className="bg-white border-2 border-[#FF7847] text-[#FF7847] hover:bg-orange-50 px-8 py-4 rounded-full font-bold text-base transition-all duration-300"
+              <button className="bg-white border-2 border-[#FF7847] text-[#FF7847] hover:bg-orange-50 px-8 py-4 rounded-full font-bold text-base transition-all duration-300 inline-flex items-center gap-2"
                 onClick={() => {
                   sessionStorage.removeItem(`itinerary_${themeId}`);
                   hasFetched.current = false;
@@ -713,7 +834,7 @@ export default function ItineraryPage() {
                   setActiveTab('all');
                   setPhase('picking');
                 }}>
-                🔄 重新規劃行程
+                <HdRefresh size={18} color="#FF7847" /> 重新規劃行程
               </button>
               <button className="bg-[#FF7847] hover:bg-[#E04400] text-white px-8 py-4 rounded-full font-bold text-base shadow-lg hover:shadow-xl hover:scale-105 transition-all"
                 onClick={() => navigate('/explore')}>

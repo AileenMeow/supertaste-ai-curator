@@ -27,18 +27,24 @@ export default function FilterModal({ onClose }) {
     );
   };
 
-  const handleExplore = () => {
+  const handleExplore = (e) => {
+    e?.preventDefault?.();
+    e?.stopPropagation?.();
+    console.log('[FilterModal] handleExplore', { styles, regions, duration });
     const matched = THEMES.filter((t) => {
-      const styleMatch = styles.length === 0 || styles.some((s) => t.styles.includes(s));
-      const regionMatch = regions.length === 0 || regions.some((r) => t.regions.includes(r));
+      const styleMatch = styles.length === 0 || styles.some((s) => (t.styles || []).includes(s));
+      const regionMatch = regions.length === 0 || regions.some((r) => (t.regions || []).includes(r));
       const durationMatch = !duration || t.duration === duration;
       return styleMatch && regionMatch && durationMatch;
     });
+    console.log('[FilterModal] matched:', matched.length);
+
+    // Pass only IDs (THEME objects contain React components in `icon` which break structuredClone)
+    const matchedIds = matched.map(t => t.id);
 
     if (matched.length === 0) {
-      // Always navigate so the user sees the friendly empty state
       onClose();
-      navigate('/explore', { state: { results: [], filters: { styles, regions, duration } } });
+      navigate('/explore', { state: { resultIds: [], filters: { styles, regions, duration } } });
       return;
     }
 
@@ -48,16 +54,13 @@ export default function FilterModal({ onClose }) {
       return;
     }
 
-    // 看看涉及幾個城市
     const cities = [...new Set(matched.map(t => t.city))];
     if (cities.length > 1) {
-      // 多城市 → 先選城市
       onClose();
-      navigate('/explore', { state: { results: matched, filters: { styles, regions, duration }, showCityPicker: true } });
+      navigate('/explore', { state: { resultIds: matchedIds, filters: { styles, regions, duration }, showCityPicker: true } });
     } else {
-      // 同城市 → 直接列出主題
       onClose();
-      navigate('/explore', { state: { results: matched, filters: { styles, regions, duration } } });
+      navigate('/explore', { state: { resultIds: matchedIds, filters: { styles, regions, duration } } });
     }
   };
 

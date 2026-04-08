@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { THEMES } from '../data/themes';
 import ThemeCard from '../components/ui/ThemeCard';
 import { ArrowLeftIcon, FilterIcon } from '../components/icons';
+import { HdThinking } from '../components/icons/HandDrawn';
 import FilterModal from '../components/ui/FilterModal';
 
 const CITY_TABS = ['全部', '台北', '台南', '花蓮'];
@@ -20,7 +21,9 @@ export default function ExplorePage() {
   const [selectedCity, setSelectedCity] = useState(null);
   const [themeImages, setThemeImages] = useState({});
 
-  const results = location.state?.results;
+  // Resolve theme IDs back to full theme objects (state.results was deprecated due to function serialization)
+  const resultIds = location.state?.resultIds;
+  const results = resultIds ? resultIds.map(id => THEMES.find(t => t.id === id)).filter(Boolean) : null;
   const showCityPicker = location.state?.showCityPicker && !selectedCity;
 
   useEffect(() => {
@@ -129,7 +132,7 @@ export default function ExplorePage() {
 
           {displayed.length === 0 ? (
             <div className="text-center py-20">
-              <div className="text-5xl mb-4">🤔</div>
+              <div className="flex justify-center mb-4"><HdThinking size={80} color="#9ca3af" /></div>
               <p className="text-gray-700 text-lg font-bold mb-2">找不到符合條件的主題</p>
               <p className="text-gray-500 text-sm mb-6">試試調整篩選條件，或看看全部玩法</p>
               <div className="flex gap-3 justify-center">

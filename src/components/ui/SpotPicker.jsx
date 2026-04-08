@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { HdFork, HdPin, HdMask, HdBag, HdTag, HdInfo, HdCheck, HdClose } from '../icons/HandDrawn';
 
 // Map English type from real JSON → tab group
 const TYPE_TO_TAB = {
@@ -9,14 +10,19 @@ const TYPE_TO_TAB = {
   shop:       '購物',
 };
 
-// Normalize spot type — fix mis-categorized cafes (→ 美食) and gifts (→ 購物)
-const RESTAURANT_KEYWORDS = ['咖啡', '餐廳', '小吃', '料理', '美食', '麵', '飯', '湯', '甜點', '冰', '茶', '酒吧', '燒肉', '火鍋', '早餐', '便當'];
+// Normalize spot type — apply heuristics in priority order
+const ATTRACTION_KEYWORDS = ['步道', '瀑布', '峽谷', '公園', '景觀', '秘境', '海灘', '海邊', '山', '湖', '橋', '島', '岸', '林', '寺', '廟', '祠', '塔', '台', '棧道'];
+const RESTAURANT_KEYWORDS = ['咖啡', '餐廳', '小吃', '料理', '美食', '麵', '飯', '湯', '甜點', '冰', '茶', '酒吧', '燒肉', '火鍋', '早餐', '便當', '燒烤', '麵包', '蛋糕'];
 const SHOP_KEYWORDS = ['伴手禮', '購物', '商店', '百貨', '市集', '名產'];
+const CULTURE_KEYWORDS = ['博物館', '展覽', '古蹟', '文物', '美術館', '園區', '老屋'];
 
 function normalizeSpotType(spot) {
   const blob = `${spot.name || ''} ${(spot.tags || []).join(' ')}`;
+  // Priority: attraction > restaurant > shop > experience (so 峽谷/步道 win over 茶)
+  if (ATTRACTION_KEYWORDS.some(k => blob.includes(k))) return { ...spot, type: 'attraction' };
   if (RESTAURANT_KEYWORDS.some(k => blob.includes(k))) return { ...spot, type: 'restaurant' };
   if (SHOP_KEYWORDS.some(k => blob.includes(k))) return { ...spot, type: 'shop' };
+  if (CULTURE_KEYWORDS.some(k => blob.includes(k))) return { ...spot, type: 'experience' };
   return spot;
 }
 
@@ -46,10 +52,10 @@ const TAB_GRADIENT = {
 };
 
 const TYPE_BADGE = {
-  restaurant: { label: '🍽️ 餐廳', cls: 'bg-blue-100 text-blue-700' },
-  attraction: { label: '📍 景點', cls: 'bg-green-100 text-green-700' },
-  experience: { label: '🎭 體驗', cls: 'bg-purple-100 text-purple-700' },
-  shop:       { label: '🛍️ 購物', cls: 'bg-pink-100 text-pink-700' },
+  restaurant: { label: '餐廳', Icon: HdFork, cls: 'bg-blue-100 text-blue-700',  iconColor: '#1d4ed8' },
+  attraction: { label: '景點', Icon: HdPin,  cls: 'bg-green-100 text-green-700', iconColor: '#15803d' },
+  experience: { label: '體驗', Icon: HdMask, cls: 'bg-purple-100 text-purple-700', iconColor: '#7c3aed' },
+  shop:       { label: '購物', Icon: HdBag,  cls: 'bg-pink-100 text-pink-700',  iconColor: '#be185d' },
 };
 
 function SpotCard({ spot, isSelected, onToggle }) {
@@ -62,8 +68,8 @@ function SpotCard({ spot, isSelected, onToggle }) {
       onClick={() => onToggle(spot.id)}
       className={`group relative flex gap-4 sm:gap-6 bg-white rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 p-4 sm:p-5 border-2 ${
         isSelected
-          ? 'border-[#FF7847] bg-orange-50 shadow-xl'
-          : 'border-gray-200 hover:border-orange-300 hover:shadow-lg'
+          ? 'border-green-500 bg-green-50 shadow-xl ring-2 ring-green-200'
+          : 'border-gray-200 hover:border-green-300 hover:shadow-lg'
       }`}
     >
       {/* Left thumbnail */}
@@ -77,19 +83,19 @@ function SpotCard({ spot, isSelected, onToggle }) {
           )}
         </div>
         {isSelected && (
-          <div className="absolute inset-0 bg-[#FF7847]/30 flex items-center justify-center">
-            <div className="w-12 h-12 bg-[#FF7847] rounded-full flex items-center justify-center shadow-lg">
-              <svg width="22" height="18" viewBox="0 0 22 18" fill="none">
+          <div className="absolute inset-0 bg-green-500/30 backdrop-blur-[1px] flex items-center justify-center">
+            <div className="w-14 h-14 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
+              <svg width="26" height="20" viewBox="0 0 22 18" fill="none">
                 <path d="M2 9l6 6L20 3" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
           </div>
         )}
         <div className="absolute top-2 left-2">
-          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shadow ${
+          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shadow inline-flex items-center gap-1 ${
             spot.isCommunity ? 'bg-[#4A90E2] text-white' : 'bg-[#FF7847] text-white'
           }`}>
-            {spot.isCommunity ? '💬 網友' : '🏷️ 食尚'}
+            <HdTag size={10} color="#fff" /> {spot.isCommunity ? '網友' : '食尚'}
           </span>
         </div>
       </div>
@@ -99,8 +105,8 @@ function SpotCard({ spot, isSelected, onToggle }) {
         <div>
           <h3 className="text-lg sm:text-2xl font-black text-gray-900 leading-tight mb-2">{spot.name}</h3>
           <div className="mb-2">
-            <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${typeBadge.cls}`}>
-              {typeBadge.label}
+            <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${typeBadge.cls}`}>
+              <typeBadge.Icon size={12} color={typeBadge.iconColor} /> {typeBadge.label}
             </span>
           </div>
           {spot.tagline && (
@@ -122,14 +128,18 @@ function SpotCard({ spot, isSelected, onToggle }) {
         </div>
       </div>
 
-      {/* Top-right checkbox */}
-      <div className={`absolute top-4 right-4 w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all ${
-        isSelected ? 'bg-[#FF7847] border-[#FF7847]' : 'bg-white border-gray-300 group-hover:border-[#FF7847]'
+      {/* Top-right checkbox — bigger & greener */}
+      <div className={`absolute top-4 right-4 w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all ${
+        isSelected
+          ? 'bg-green-500 border-green-500 scale-110 shadow-lg'
+          : 'bg-white border-gray-300 group-hover:border-green-400 group-hover:scale-105'
       }`}>
-        {isSelected && (
-          <svg width="14" height="11" viewBox="0 0 14 11" fill="none">
-            <path d="M1 5l4 4 8-8" stroke="white" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/>
+        {isSelected ? (
+          <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
+            <path d="M2 8l5 5L18 2" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
+        ) : (
+          <div className="w-3 h-3 rounded-full border-2 border-gray-400" />
         )}
       </div>
     </div>
@@ -224,6 +234,17 @@ export default function SpotPicker({ theme, spots, images = [], onGenerate, onAi
     onGenerate(enriched.filter(s => selected.has(s.id)));
   };
 
+  const selectAllVisible = () => {
+    setSelected(prev => {
+      const next = new Set(prev);
+      visibleSpots.forEach(s => next.add(s.id));
+      return next;
+    });
+  };
+  const clearSelection = () => setSelected(new Set());
+
+  const selectedSpotsList = enriched.filter(s => selected.has(s.id));
+
   if (loading) {
     return (
       <div className="px-4 pt-4 pb-8 space-y-6 animate-pulse">
@@ -264,7 +285,10 @@ export default function SpotPicker({ theme, spots, images = [], onGenerate, onAi
               <span>{theme.city}</span><span>·</span><span>{theme.duration}</span>
             </div>
             <h1 className="text-4xl sm:text-5xl font-black mb-3 drop-shadow-lg">{theme.name}</h1>
-            <p className="text-base sm:text-lg text-white/90 max-w-2xl mx-auto leading-relaxed">{theme.description}</p>
+            <p className="text-base sm:text-lg text-white/90 mb-3 max-w-2xl mx-auto leading-relaxed">{theme.description}</p>
+            <p className="text-white/75 text-sm flex items-center justify-center gap-2">
+              <HdInfo size={14} color="#fff" /> 選擇你想去的地方，AI 幫你排成最順的路線
+            </p>
           </div>
         </section>
       )}
@@ -310,6 +334,49 @@ export default function SpotPicker({ theme, spots, images = [], onGenerate, onAi
         </div>
       </div>
 
+      {/* Quick action toolbar */}
+      <div className="max-w-5xl mx-auto px-6 pt-6">
+        <div className="flex gap-3 flex-wrap">
+          <button onClick={selectAllVisible}
+            className="bg-green-100 hover:bg-green-200 text-green-700 px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-1.5">
+            <HdCheck size={14} color="#15803d" /> 全選當前分類
+          </button>
+          {selected.size > 0 && (
+            <button onClick={clearSelection}
+              className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-1.5">
+              <HdClose size={14} color="#6b7280" /> 清除選擇
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Selected spots chips area */}
+      {selectedSpotsList.length > 0 && (
+        <div className="max-w-5xl mx-auto px-6 pt-4">
+          <div className="bg-green-50 border-2 border-green-300 rounded-2xl p-5">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-green-800 font-bold flex items-center gap-2">
+                <HdCheck size={16} color="#16a34a" /> 已選擇 {selectedSpotsList.length} 個景點
+              </span>
+              <button onClick={clearSelection}
+                className="text-gray-500 hover:text-gray-700 text-sm">
+                清除全部
+              </button>
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              {selectedSpotsList.map(s => (
+                <span key={s.id}
+                  className="bg-white text-green-700 px-3 py-1.5 rounded-full text-sm font-medium border border-green-200 flex items-center gap-2 shadow-sm">
+                  {s.name}
+                  <button onClick={(e) => { e.stopPropagation(); toggle(s.id); }}
+                    className="text-green-600 hover:text-green-800 text-base leading-none">×</button>
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Category sections */}
       <div className="max-w-5xl mx-auto px-6 py-12">
         {Object.entries(grouped).map(([tab, tabSpots]) => (
@@ -332,34 +399,33 @@ export default function SpotPicker({ theme, spots, images = [], onGenerate, onAi
         </div>
       )}
 
-      {/* Sticky bottom bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-t border-[#F0F0F0]">
-        <div className="max-w-2xl mx-auto px-4 py-3.5">
-          {selected.size > 0 ? (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-[#555]">
-                  已選 <span className="font-bold text-[#FF6B35]">{selected.size}</span> 個景點
-                </span>
-                <button onClick={() => setSelected(new Set())} className="text-xs text-[#AAA] hover:text-[#666]">
-                  清除
-                </button>
-              </div>
-              <button onClick={handleGenerate} className="w-full py-3 rounded-xl bg-gradient-to-r from-[#FF6B35] to-[#FF8C42] text-white text-sm font-bold shadow-md shadow-[#FF6B35]/30 hover:shadow-lg transition-shadow">
-                生成我的專屬行程 →
+      {/* Fixed bottom bar — always visible */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t-2 border-gray-200 shadow-2xl">
+        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-2">
+            <span className="text-gray-700 font-medium">已選擇</span>
+            <span className="text-green-500 text-3xl font-black">{selected.size}</span>
+            <span className="text-gray-700 font-medium">個景點</span>
+          </div>
+          <div className="flex gap-3 items-center">
+            {selected.size > 0 && (
+              <button onClick={clearSelection}
+                className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-5 py-2.5 rounded-full font-medium transition-all text-sm">
+                清除選擇
               </button>
-              <button onClick={onAiPick} className="w-full text-center text-xs text-[#AAA] hover:text-[#555] py-1">
-                或讓 AI 導遊幫我推薦
+            )}
+            {selected.size > 0 ? (
+              <button onClick={handleGenerate}
+                className="bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white px-8 py-3 rounded-full font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2">
+                生成我的行程 →
               </button>
-            </div>
-          ) : (
-            <div className="space-y-1.5">
-              <button onClick={onAiPick} className="w-full py-3 rounded-xl bg-gradient-to-r from-[#FF6B35] to-[#FF8C42] text-white text-sm font-bold shadow-md shadow-[#FF6B35]/30">
-                讓 AI 導遊幫我挑選推薦景點
+            ) : (
+              <button onClick={onAiPick}
+                className="bg-gradient-to-r from-[#FF6B35] to-[#FF8C42] hover:shadow-xl text-white px-8 py-3 rounded-full font-bold shadow-lg transition-all">
+                讓 AI 導遊幫我挑選 →
               </button>
-              <p className="text-center text-[11px] text-[#CCC]">或點選上方景點，自訂你的行程</p>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>
