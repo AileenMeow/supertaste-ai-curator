@@ -128,9 +128,18 @@ export default function ExplorePage() {
           )}
 
           {displayed.length === 0 ? (
-            <div className="text-center py-16">
-              <p className="text-[#999] mb-4">沒有符合的玩法</p>
-              <button className="btn-primary" onClick={() => setShowFilter(true)}>調整篩選條件</button>
+            <div className="text-center py-20">
+              <div className="text-5xl mb-4">🤔</div>
+              <p className="text-gray-700 text-lg font-bold mb-2">找不到符合條件的主題</p>
+              <p className="text-gray-500 text-sm mb-6">試試調整篩選條件，或看看全部玩法</p>
+              <div className="flex gap-3 justify-center">
+                <button className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-full font-bold transition-all" onClick={() => setShowFilter(true)}>
+                  重新篩選
+                </button>
+                <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-full font-bold transition-all" onClick={() => navigate('/explore', { replace: true, state: null })}>
+                  看全部玩法
+                </button>
+              </div>
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">

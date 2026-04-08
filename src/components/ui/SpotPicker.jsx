@@ -9,6 +9,28 @@ const TYPE_TO_TAB = {
   shop:       '購物',
 };
 
+// Normalize spot type — fix mis-categorized cafes (→ 美食) and gifts (→ 購物)
+const RESTAURANT_KEYWORDS = ['咖啡', '餐廳', '小吃', '料理', '美食', '麵', '飯', '湯', '甜點', '冰', '茶', '酒吧', '燒肉', '火鍋', '早餐', '便當'];
+const SHOP_KEYWORDS = ['伴手禮', '購物', '商店', '百貨', '市集', '名產'];
+
+function normalizeSpotType(spot) {
+  const blob = `${spot.name || ''} ${(spot.tags || []).join(' ')}`;
+  if (RESTAURANT_KEYWORDS.some(k => blob.includes(k))) return { ...spot, type: 'restaurant' };
+  if (SHOP_KEYWORDS.some(k => blob.includes(k))) return { ...spot, type: 'shop' };
+  return spot;
+}
+
+// Per-theme decorative emoji for Hero (quick implementation)
+const THEME_DECO = {
+  '不夜城': '🌃', '都市綠洲': '🌳', '明星潮流': '🌟', '港星記憶': '🎬',
+  'AI教父美食地圖': '🍜', '動漫聖地': '🎌', '網美打卡': '📸', '文青之旅': '☕',
+  '步道健行': '🥾', '購物血拼': '🛍️',
+  '古都巡禮': '🏛️', '凌晨美食': '🍲', '百年老店': '🏮', '螞蟻人的台南': '🍰',
+  '米其林之旅': '⭐', '台版亞馬遜': '🌿', '廟宇奇觀': '⛩️', '老屋時光': '🏚️',
+  '峽谷秘境': '⛰️', '部落文化': '🪶', '太平洋看海放空': '🌊', '單車日記': '🚴',
+  '老屋裡的昭和': '🏯', '親子放電': '🎈', '在地老味': '🥟',
+};
+
 const TAB_ORDER = ['全部', '美食', '景點', '文化', '購物'];
 
 const TAB_EMOJI = {
@@ -72,12 +94,12 @@ function SpotCard({ spot, isSelected, onToggle }) {
         </div>
       </div>
 
-      {/* Right content */}
-      <div className="flex-1 min-w-0 flex flex-col justify-between">
+      {/* Right content — pr-12 reserves space for top-right checkbox */}
+      <div className="flex-1 min-w-0 flex flex-col justify-between pr-10">
         <div>
-          <div className="flex items-start justify-between gap-3 mb-2">
-            <h3 className="text-lg sm:text-2xl font-black text-gray-900 leading-tight">{spot.name}</h3>
-            <span className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium ${typeBadge.cls}`}>
+          <h3 className="text-lg sm:text-2xl font-black text-gray-900 leading-tight mb-2">{spot.name}</h3>
+          <div className="mb-2">
+            <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${typeBadge.cls}`}>
               {typeBadge.label}
             </span>
           </div>
@@ -150,7 +172,19 @@ export default function SpotPicker({ theme, spots, images = [], onGenerate, onAi
 
   // Filter to only real spots (no 攻略), enrich with tab + image
   const enriched = useMemo(() => {
-    return spots.map((s, i) => ({
+    // 1) dedupe by name+area, keeping the one with the longest description
+    const seen = new Map();
+    spots.forEach(s => {
+      const key = `${(s.name || '').trim().toLowerCase()}-${(s.area || '').trim().toLowerCase()}`;
+      const existing = seen.get(key);
+      if (!existing || (s.description?.length || 0) > (existing.description?.length || 0)) {
+        seen.set(key, s);
+      }
+    });
+    // 2) normalize types (cafes → 美食, gifts → 購物)
+    const unique = Array.from(seen.values()).map(normalizeSpotType);
+    // 3) enrich
+    return unique.map((s, i) => ({
       ...s,
       id: s.id || `${s.name}-${i}`,
       tab: TYPE_TO_TAB[s.type] || '景點',
@@ -211,20 +245,26 @@ export default function SpotPicker({ theme, spots, images = [], onGenerate, onAi
 
   return (
     <div className="pb-36 bg-white">
-      {/* Hero matching ItineraryPage done view */}
+      {/* Hero — shorter, with per-theme decorative emoji background */}
       {theme && (
-        <section className={`relative bg-gradient-to-br ${theme.coverGradient} min-h-[440px] flex items-center justify-center overflow-hidden pt-20 pb-12`}>
+        <section className={`relative bg-gradient-to-br ${theme.coverGradient} min-h-[320px] flex items-center justify-center overflow-hidden pt-20 pb-8`}>
           <button onClick={() => navigate('/')}
             className="absolute top-6 left-6 z-20 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white px-4 py-2.5 rounded-full transition-all flex items-center gap-2 font-semibold text-sm">
             ← 返回首頁
           </button>
-          <div className="relative z-10 text-center text-white px-6 max-w-4xl py-14">
-            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm mb-5">
+          {/* Per-theme deco emoji (large, faded) */}
+          <div aria-hidden className="absolute right-4 sm:right-12 bottom-0 text-[180px] sm:text-[240px] leading-none opacity-15 select-none pointer-events-none">
+            {THEME_DECO[theme.name] || '✨'}
+          </div>
+          <div aria-hidden className="absolute left-4 sm:left-12 top-16 text-[120px] sm:text-[160px] leading-none opacity-10 select-none pointer-events-none rotate-12">
+            {THEME_DECO[theme.name] || '✨'}
+          </div>
+          <div className="relative z-10 text-center text-white px-6 max-w-4xl">
+            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm mb-3">
               <span>{theme.city}</span><span>·</span><span>{theme.duration}</span>
             </div>
-            <h1 className="text-5xl sm:text-6xl font-black mb-4 drop-shadow-lg">{theme.name}</h1>
-            <p className="text-lg sm:text-xl text-white/90 mb-6 max-w-2xl mx-auto leading-relaxed">{theme.description}</p>
-            <p className="text-white/80 text-sm">✦ 選你想去的地方，AI 幫你排成最佳動線</p>
+            <h1 className="text-4xl sm:text-5xl font-black mb-3 drop-shadow-lg">{theme.name}</h1>
+            <p className="text-base sm:text-lg text-white/90 max-w-2xl mx-auto leading-relaxed">{theme.description}</p>
           </div>
         </section>
       )}

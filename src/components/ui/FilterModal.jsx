@@ -35,6 +35,13 @@ export default function FilterModal({ onClose }) {
       return styleMatch && regionMatch && durationMatch;
     });
 
+    if (matched.length === 0) {
+      // Always navigate so the user sees the friendly empty state
+      onClose();
+      navigate('/explore', { state: { results: [], filters: { styles, regions, duration } } });
+      return;
+    }
+
     if (matched.length === 1) {
       onClose();
       navigate(`/itinerary/${matched[0].id}`);

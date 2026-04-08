@@ -20,22 +20,205 @@ function getRealTheme(themeId) {
   return spotsData.themes.find(t => t.theme_id === id) || null;
 }
 
-// Loading skeleton
-function LoadingSkeleton() {
+// Animated loading screen
+const LOADING_MESSAGES = [
+  '正在分析你的喜好...',
+  '尋找最佳景點組合...',
+  '規劃最順的移動路線...',
+  '安排用餐時間...',
+  '快完成了！',
+];
+
+function LoadingScreen() {
+  const [msgIdx, setMsgIdx] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setMsgIdx(i => (i + 1) % LOADING_MESSAGES.length), 1800);
+    return () => clearInterval(t);
+  }, []);
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8 space-y-6 animate-pulse">
-      <div className="h-8 bg-[#F0F0F0] rounded-lg w-3/4" />
-      <div className="h-4 bg-[#F0F0F0] rounded w-full" />
-      <div className="h-4 bg-[#F0F0F0] rounded w-5/6" />
-      <div className="h-px bg-[#F0F0F0]" />
-      {[1, 2, 3].map((i) => (
-        <div key={i} className="bg-white rounded-xl p-6 space-y-4 shadow-card">
-          <div className="h-6 bg-[#F0F0F0] rounded w-1/2" />
-          <div className="h-40 bg-[#F0F0F0] rounded-lg" />
-          <div className="h-4 bg-[#F0F0F0] rounded w-full" />
-          <div className="h-4 bg-[#F0F0F0] rounded w-4/5" />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-yellow-50 to-pink-50 px-6">
+      <div className="max-w-xl w-full text-center">
+        {/* Animated guide character */}
+        <div className="relative w-48 h-48 mx-auto mb-8">
+          <div className="absolute inset-0 border-[6px] border-orange-200 border-t-orange-500 rounded-full animate-spin" />
+          <div className="absolute inset-4 border-[4px] border-pink-200 border-b-pink-400 rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '2s' }} />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-7xl animate-bounce" style={{ animationDuration: '2s' }}>🧭</div>
+          </div>
         </div>
-      ))}
+
+        <h2 className="text-3xl sm:text-4xl font-black text-gray-900 mb-3">
+          AI 導遊正在為你規劃行程
+        </h2>
+
+        <div className="text-lg text-orange-600 font-semibold h-7 mb-8" key={msgIdx}>
+          <span className="inline-block animate-fade-up">{LOADING_MESSAGES[msgIdx]}</span>
+        </div>
+
+        {/* Animated progress bar */}
+        <div className="w-full bg-orange-100 rounded-full h-2.5 overflow-hidden mb-4">
+          <div className="bg-gradient-to-r from-orange-400 via-pink-500 to-orange-400 h-2.5 rounded-full"
+            style={{
+              width: '100%',
+              backgroundSize: '200% 100%',
+              animation: 'shimmer 2s linear infinite',
+            }} />
+        </div>
+        <p className="text-sm text-gray-500">正在考慮營業時間、移動動線和用餐時間...</p>
+
+        {/* Inline keyframes */}
+        <style>{`
+          @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+          @keyframes fade-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+          .animate-fade-up { animation: fade-up 0.5s ease-out; }
+        `}</style>
+      </div>
+    </div>
+  );
+}
+
+// ─── Timeline builder ──────────────────────────────────────────
+function pad(n) { return String(n).padStart(2, '0'); }
+function fmtTime(mins) { return `${pad(Math.floor(mins / 60))}:${pad(mins % 60)}`; }
+
+function buildTimeline(stops) {
+  const items = [];
+  let cur = 9 * 60; // start 09:00
+  let lunchAdded = false;
+  let dinnerAdded = false;
+
+  stops.forEach((spot, idx) => {
+    // Insert lunch around 12:00
+    if (!lunchAdded && cur >= 12 * 60) {
+      items.push({ type: 'meal', time: fmtTime(cur), mealType: 'lunch', duration: '60-90 分鐘' });
+      cur += 75;
+      lunchAdded = true;
+    }
+    // Insert dinner around 18:00
+    if (!dinnerAdded && cur >= 18 * 60) {
+      items.push({ type: 'meal', time: fmtTime(cur), mealType: 'dinner', duration: '60-90 分鐘' });
+      cur += 75;
+      dinnerAdded = true;
+    }
+
+    items.push({
+      type: 'spot',
+      time: spot.time || fmtTime(cur),
+      duration: spot.stay_duration || '約 90 分鐘',
+      spot,
+    });
+    cur += 90;
+
+    // Travel between spots
+    if (idx < stops.length - 1) {
+      items.push({ type: 'travel', travelTime: 15, travelMethod: '捷運 / 步行' });
+      cur += 15;
+    }
+  });
+  return items;
+}
+
+function TimelineItem({ item, isLast, image, themeId, themeName, themeCity }) {
+  const { toggleSpot, isSpotSaved } = useSavedSpots();
+
+  if (item.type === 'travel') {
+    return (
+      <div className="flex gap-4 sm:gap-6 mb-4">
+        <div className="flex-shrink-0 w-16 sm:w-20" />
+        <div className="flex-shrink-0 flex flex-col items-center">
+          <div className="w-3 h-3 rounded-full bg-gray-300" />
+          {!isLast && <div className="w-0.5 flex-1 bg-gray-200 min-h-[40px]" />}
+        </div>
+        <div className="flex-1 pb-4">
+          <div className="bg-gray-50 rounded-xl p-3 border-2 border-dashed border-gray-200 inline-flex items-center gap-2 text-sm text-gray-600">
+            🚶 移動約 {item.travelTime} 分鐘 · {item.travelMethod}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (item.type === 'meal') {
+    return (
+      <div className="flex gap-4 sm:gap-6 mb-6">
+        <div className="flex-shrink-0 w-16 sm:w-20 text-right">
+          <div className="text-xl font-black text-blue-500">{item.time}</div>
+          <div className="text-xs text-gray-500">{item.duration}</div>
+        </div>
+        <div className="flex-shrink-0 flex flex-col items-center">
+          <div className="w-4 h-4 rounded-full bg-blue-500 border-4 border-blue-100" />
+          {!isLast && <div className="w-0.5 flex-1 bg-gray-200 min-h-[60px]" />}
+        </div>
+        <div className="flex-1">
+          <div className="bg-blue-50 rounded-xl p-5 border-2 border-blue-100">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-2xl">🍽️</span>
+              <h3 className="text-lg font-black text-gray-900">
+                {item.mealType === 'lunch' ? '午餐時間' : '晚餐時間'}
+              </h3>
+            </div>
+            <p className="text-gray-600 text-sm">建議在附近餐廳用餐，約 60-90 分鐘</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // spot
+  const stop = item.spot;
+  const saved = isSpotSaved(stop, themeId);
+  const type = inferType(stop);
+  const typeMap = {
+    restaurant: { label: '🍽️ 美食', cls: 'bg-blue-100 text-blue-700' },
+    attraction: { label: '📍 景點', cls: 'bg-green-100 text-green-700' },
+    experience: { label: '🎭 文化', cls: 'bg-purple-100 text-purple-700' },
+    shop:       { label: '🛍️ 購物', cls: 'bg-pink-100 text-pink-700' },
+  };
+  const tBadge = typeMap[type];
+
+  return (
+    <div className="flex gap-4 sm:gap-6 mb-6">
+      <div className="flex-shrink-0 w-16 sm:w-20 text-right">
+        <div className="text-xl font-black text-[#FF7847]">{item.time}</div>
+        <div className="text-xs text-gray-500">{item.duration}</div>
+      </div>
+      <div className="flex-shrink-0 flex flex-col items-center">
+        <div className="w-4 h-4 rounded-full bg-[#FF7847] border-4 border-orange-100" />
+        {!isLast && <div className="w-0.5 flex-1 bg-gray-200 min-h-[80px]" />}
+      </div>
+      <div className="flex-1 pb-2">
+        <div className="bg-gray-50 hover:bg-white hover:shadow-md rounded-xl p-5 transition-all">
+          <div className="flex items-start gap-4">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden flex-shrink-0 bg-gradient-to-br from-orange-300 to-pink-400">
+              {image && (
+                <img src={image} alt={stop.name} className="w-full h-full object-cover"
+                  onError={e => { e.target.style.display = 'none'; }} />
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${tBadge.cls}`}>{tBadge.label}</span>
+                {stop.area && <span className="text-gray-500 text-xs">{stop.area}</span>}
+              </div>
+              <h3 className="text-lg sm:text-xl font-black text-gray-900 mb-1.5 leading-tight">{stop.name}</h3>
+              {(stop.tagline || stop.quote) && (
+                <p className="text-gray-600 text-sm mb-2 line-clamp-2">{stop.tagline || stop.quote}</p>
+              )}
+              <div className="flex items-center gap-3 text-xs text-gray-500 flex-wrap">
+                {stop.budget_per_person && <span>💰 {stop.budget_per_person}</span>}
+                {stop.google_rating && <span>⭐ {stop.google_rating}</span>}
+              </div>
+            </div>
+            <button
+              onClick={(e) => { e.stopPropagation(); toggleSpot(stop, themeId, themeName, themeCity); }}
+              className="flex-shrink-0 p-2 rounded-full hover:bg-orange-50 transition-colors"
+              aria-label={saved ? '取消收藏' : '加入收藏'}
+            >
+              <HeartIcon size={20} color="#FF7847" filled={saved} />
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -370,60 +553,38 @@ export default function ItineraryPage() {
       {/* Loading / Error / Done */}
       {phase !== 'picking' && (
       <div>
-      {phase === 'loading' && (
-        <div className="max-w-2xl mx-auto px-4 py-8">
-          {(() => null)()}
-          {(<div className="space-y-4">
-            <div className="bg-white rounded-xl p-5 shadow-card flex items-center gap-3">
-              <div className="flex gap-1">
-                {[0, 1, 2].map((i) => (
-                  <div key={i} className="w-2 h-2 rounded-full bg-[#FF6B35] animate-bounce"
-                    style={{ animationDelay: `${i * 150}ms` }} />
-                ))}
-              </div>
-              <p className="text-sm text-[#666]">AI 策展人正在為你規劃行程...</p>
-            </div>
-            <LoadingSkeleton />
-          </div>)}
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center mt-4">
-              <p className="text-red-600 font-medium mb-2">行程生成失敗</p>
-              <p className="text-sm text-red-500 mb-4">{error}</p>
-              <button className="btn-primary text-sm py-2"
-                onClick={() => { hasFetched.current = false; setError(null); setPhase('picking'); }}>
-                重試
-              </button>
-            </div>
-          )}
+      {phase === 'loading' && !error && <LoadingScreen />}
+      {phase === 'loading' && error && (
+        <div className="max-w-2xl mx-auto px-4 py-20">
+          <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+            <p className="text-red-600 font-bold mb-2">行程生成失敗</p>
+            <p className="text-sm text-red-500 mb-4">{error}</p>
+            <button className="btn-primary text-sm py-2"
+              onClick={() => { hasFetched.current = false; setError(null); setPhase('picking'); }}>
+              重試
+            </button>
+          </div>
         </div>
       )}
 
       {itinerary && phase === 'done' && (() => {
         const stops = itinerary.itinerary || [];
-        const grouped = {
-          all: stops,
-          restaurant: stops.filter(s => inferType(s) === 'restaurant'),
-          attraction: stops.filter(s => inferType(s) === 'attraction'),
-          experience: stops.filter(s => inferType(s) === 'experience'),
-          shop: stops.filter(s => inferType(s) === 'shop'),
-        };
-        const restaurantCount = grouped.restaurant.length;
-        const filtered = grouped[activeTab] || stops;
+        const restaurantCount = stops.filter(s => inferType(s) === 'restaurant').length;
 
         return (
           <div className="fade-in-up">
             {/* ── Hero ───────────────────────────────────── */}
-            <section className={`relative bg-gradient-to-br ${theme.coverGradient} min-h-[440px] flex items-center justify-center overflow-hidden pt-20 pb-12`}>
+            <section className={`relative bg-gradient-to-br ${theme.coverGradient} min-h-[320px] flex items-center justify-center overflow-hidden pt-20 pb-8`}>
               <button onClick={() => navigate('/')}
                 className="absolute top-6 left-6 z-20 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white px-4 py-2.5 rounded-full transition-all flex items-center gap-2 font-semibold">
                 <ArrowLeftIcon size={18} color="white" /> 返回首頁
               </button>
-              <div className="relative z-10 text-center text-white px-6 max-w-4xl py-16">
-                <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm mb-5">
+              <div className="relative z-10 text-center text-white px-6 max-w-4xl">
+                <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm mb-3">
                   <span>{theme.city}</span><span>·</span><span>{theme.duration}</span>
                 </div>
-                <h1 className="text-5xl sm:text-6xl font-black mb-4 drop-shadow-lg">{realTheme?.theme_name || theme.name}</h1>
-                <p className="text-lg sm:text-xl text-white/90 mb-6 max-w-2xl mx-auto leading-relaxed">
+                <h1 className="text-4xl sm:text-5xl font-black mb-3 drop-shadow-lg">{realTheme?.theme_name || theme.name}</h1>
+                <p className="text-base sm:text-lg text-white/90 mb-3 max-w-2xl mx-auto leading-relaxed">
                   {realTheme?.slogan || theme.description}
                 </p>
                 <div className="flex gap-2 justify-center flex-wrap">
@@ -434,33 +595,9 @@ export default function ItineraryPage() {
               </div>
             </section>
 
-            {/* ── Tabs ───────────────────────────────────── */}
-            <div className="bg-white border-b sticky top-0 z-20">
-              <div className="max-w-7xl mx-auto px-6">
-                <div className="flex gap-6 overflow-x-auto scrollbar-hide">
-                  {[
-                    { key: 'all', label: '全部', emoji: '✨' },
-                    { key: 'restaurant', label: '美食', emoji: '🍽️' },
-                    { key: 'attraction', label: '景點', emoji: '📍' },
-                    { key: 'experience', label: '文化', emoji: '🎭' },
-                    { key: 'shop', label: '購物', emoji: '🛍️' },
-                  ].filter(t => grouped[t.key].length > 0).map(t => (
-                    <button key={t.key} onClick={() => setActiveTab(t.key)}
-                      className={`py-4 px-2 font-semibold whitespace-nowrap border-b-2 transition-all ${
-                        activeTab === t.key
-                          ? 'text-gray-900 border-[#FF7847]'
-                          : 'text-gray-500 border-transparent hover:text-gray-900'
-                      }`}>
-                      {t.emoji} {t.label} <span className="text-gray-400 text-sm ml-1">({grouped[t.key].length})</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
             {/* ── Story intro ────────────────────────────── */}
             {itinerary.story && (
-              <div className="max-w-7xl mx-auto px-6 pt-10">
+              <div className="max-w-5xl mx-auto px-6 pt-10">
                 <div className="bg-gradient-to-br from-orange-50 to-yellow-50 border border-orange-100 rounded-2xl p-6 sm:p-8">
                   <h2 className="font-black text-[#1A1A1A] text-xl mb-2">這趟旅程的故事</h2>
                   <p className="text-[#555] text-base leading-relaxed">{itinerary.story}</p>
@@ -468,14 +605,15 @@ export default function ItineraryPage() {
               </div>
             )}
 
-            {/* ── Spot Cards Grid ────────────────────────── */}
-            <div className="max-w-7xl mx-auto px-6 py-12">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {filtered.map((stop, i) => (
-                  <SpotCard key={i} stop={stop}
-                    image={themeImages[i % Math.max(themeImages.length, 1)]}
-                    themeId={themeId} themeName={theme.name} themeCity={theme.city}
-                    themeGradient={theme.coverGradient} />
+            {/* ── Timeline ────────────────────────────── */}
+            <div className="max-w-5xl mx-auto px-6 py-12">
+              <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mb-2">📅 一日行程時間軸</h2>
+              <p className="text-gray-500 text-sm mb-8">已考慮營業時間、移動動線與用餐時間</p>
+              <div className="bg-white rounded-2xl shadow-sm p-6 sm:p-8">
+                {buildTimeline(stops).map((item, i, arr) => (
+                  <TimelineItem key={i} item={item} isLast={i === arr.length - 1}
+                    image={item.type === 'spot' ? themeImages[i % Math.max(themeImages.length, 1)] : null}
+                    themeId={themeId} themeName={theme.name} themeCity={theme.city} />
                 ))}
               </div>
             </div>
@@ -602,9 +740,8 @@ export default function ItineraryPage() {
                   />
                 ))}
               </div>
-              <p className="text-sm text-[#666]">AI 策展人正在為你規劃行程...</p>
+              <p className="text-sm text-[#666]">AI 導遊正在為你規劃行程...</p>
             </div>
-            <LoadingSkeleton />
           </div>
         )}
 
