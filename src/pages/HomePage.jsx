@@ -290,7 +290,7 @@ export default function HomePage() {
 
         {/* ── Navbar ── */}
         <nav className="relative flex items-center justify-between px-5 sm:px-8 py-3 max-w-6xl mx-auto">
-          <div className="flex items-center gap-3">
+          <button onClick={() => navigate('/')} className="flex items-center gap-3 hover:opacity-90 transition-opacity">
             <div className="w-11 h-11 relative">
               <svg viewBox="0 0 48 48" className="w-full h-full">
                 <circle cx="24" cy="24" r="23" fill="white" opacity="0.92"/>
@@ -306,7 +306,7 @@ export default function HomePage() {
               </svg>
             </div>
             <span className="font-black text-white text-base sm:text-lg tracking-tight drop-shadow-sm">食尚玩家 AI 導遊</span>
-          </div>
+          </button>
           <div className="flex items-center">
             {['台北', '台南', '花蓮'].map(city => (
               <button key={city} onClick={() => handleCity(city)}

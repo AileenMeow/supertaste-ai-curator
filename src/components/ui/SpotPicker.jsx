@@ -1,31 +1,18 @@
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-// Only show actual spot types — no 攻略懶人包
-const SPOT_TYPES = [
-  '必吃美食', '必訪景點', '文化體驗', '生活體驗',
-  '娛樂體驗', '親子活動', '戶外活動', '生態體驗',
-  '購物體驗', '達人推薦',
-];
-
-// Map type → tab group
+// Map English type from real JSON → tab group
 const TYPE_TO_TAB = {
-  '必吃美食': '美食',
-  '必訪景點': '景點',
-  '文化體驗': '文化',
-  '生活體驗': '體驗',
-  '娛樂體驗': '體驗',
-  '親子活動': '體驗',
-  '戶外活動': '戶外',
-  '生態體驗': '戶外',
-  '購物體驗': '購物',
-  '達人推薦': '體驗',
+  restaurant: '美食',
+  attraction: '景點',
+  experience: '文化',
+  shop:       '購物',
 };
 
-const TAB_ORDER = ['全部', '美食', '景點', '文化', '體驗', '戶外', '購物'];
+const TAB_ORDER = ['全部', '美食', '景點', '文化', '購物'];
 
 const TAB_EMOJI = {
-  '全部': '✦', '美食': '🍜', '景點': '📍',
-  '文化': '🏛', '體驗': '⭐', '戶外': '🏔', '購物': '🛍',
+  '全部': '✨', '美食': '🍽️', '景點': '📍', '文化': '🎭', '購物': '🛍️',
 };
 
 // Fallback gradients per tab (shown when no image)
@@ -33,82 +20,97 @@ const TAB_GRADIENT = {
   '美食': 'from-[#7B1D00] via-[#C0392B] to-[#E04B00]',
   '景點': 'from-[#0D2B4A] via-[#1B4F72] to-[#2E86C1]',
   '文化': 'from-[#1A0533] via-[#6C3483] to-[#9B59B6]',
-  '體驗': 'from-[#7D3C00] via-[#D35400] to-[#E67E22]',
-  '戶外': 'from-[#0A2D0A] via-[#1E8449] to-[#27AE60]',
   '購物': 'from-[#5D0E2E] via-[#A93226] to-[#E91E63]',
+};
+
+const TYPE_BADGE = {
+  restaurant: { label: '🍽️ 餐廳', cls: 'bg-blue-100 text-blue-700' },
+  attraction: { label: '📍 景點', cls: 'bg-green-100 text-green-700' },
+  experience: { label: '🎭 體驗', cls: 'bg-purple-100 text-purple-700' },
+  shop:       { label: '🛍️ 購物', cls: 'bg-pink-100 text-pink-700' },
 };
 
 function SpotCard({ spot, isSelected, onToggle }) {
   const tab = spot.tab;
-  const gradient = TAB_GRADIENT[tab] || TAB_GRADIENT['體驗'];
+  const gradient = TAB_GRADIENT[tab] || TAB_GRADIENT['景點'];
+  const typeBadge = TYPE_BADGE[spot.type] || TYPE_BADGE.attraction;
 
   return (
-    <button
+    <div
       onClick={() => onToggle(spot.id)}
-      className={`relative flex-shrink-0 w-40 h-52 rounded-2xl overflow-hidden text-left transition-all duration-200 group focus:outline-none ${
+      className={`group relative flex gap-4 sm:gap-6 bg-white rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 p-4 sm:p-5 border-2 ${
         isSelected
-          ? 'ring-[3px] ring-[#FF6B35] ring-offset-2 shadow-xl scale-[1.02]'
-          : 'shadow-md hover:shadow-xl hover:scale-[1.02]'
+          ? 'border-[#FF7847] bg-orange-50 shadow-xl'
+          : 'border-gray-200 hover:border-orange-300 hover:shadow-lg'
       }`}
     >
-      {/* Background gradient */}
-      <div className={`absolute inset-0 bg-gradient-to-br ${gradient}`} />
+      {/* Left thumbnail */}
+      <div className="relative w-32 h-32 sm:w-44 sm:h-36 flex-shrink-0 rounded-xl overflow-hidden">
+        <div className={`absolute inset-0 bg-gradient-to-br ${gradient}`}>
+          {spot.image && (
+            <img src={spot.image} alt={spot.name}
+              className="absolute inset-0 w-full h-full object-cover"
+              loading="lazy"
+              onError={e => { e.target.style.display = 'none'; }} />
+          )}
+        </div>
+        {isSelected && (
+          <div className="absolute inset-0 bg-[#FF7847]/30 flex items-center justify-center">
+            <div className="w-12 h-12 bg-[#FF7847] rounded-full flex items-center justify-center shadow-lg">
+              <svg width="22" height="18" viewBox="0 0 22 18" fill="none">
+                <path d="M2 9l6 6L20 3" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+          </div>
+        )}
+        <div className="absolute top-2 left-2">
+          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shadow ${
+            spot.isCommunity ? 'bg-[#4A90E2] text-white' : 'bg-[#FF7847] text-white'
+          }`}>
+            {spot.isCommunity ? '💬 網友' : '🏷️ 食尚'}
+          </span>
+        </div>
+      </div>
 
-      {/* Article image overlay */}
-      {spot.image && (
-        <img
-          src={spot.image}
-          alt={spot.name}
-          className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-500"
-          loading="lazy"
-          onError={e => { e.target.style.display = 'none'; }}
-        />
-      )}
-
-      {/* Dark gradient overlay (bottom-heavy) */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-
-      {/* Top row: source badge + check */}
-      <div className="absolute top-2.5 left-2.5 right-2.5 flex items-start justify-between">
-        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full backdrop-blur-sm ${
-          spot.isCommunity
-            ? 'bg-[#4A90E2]/80 text-white'
-            : 'bg-[#FF6B35]/90 text-white'
-        }`}>
-          {spot.isCommunity ? '網友推薦' : '食尚玩家'}
-        </span>
-        <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all flex-shrink-0 ${
-          isSelected
-            ? 'bg-[#FF6B35] shadow-lg'
-            : 'bg-black/40 border border-white/40'
-        }`}>
-          {isSelected ? (
-            <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-              <path d="M1 4l2.5 2.5L9 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          ) : (
-            <div className="w-1.5 h-1.5 rounded-full bg-white/40" />
+      {/* Right content */}
+      <div className="flex-1 min-w-0 flex flex-col justify-between">
+        <div>
+          <div className="flex items-start justify-between gap-3 mb-2">
+            <h3 className="text-lg sm:text-2xl font-black text-gray-900 leading-tight">{spot.name}</h3>
+            <span className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium ${typeBadge.cls}`}>
+              {typeBadge.label}
+            </span>
+          </div>
+          {spot.tagline && (
+            <p className="text-gray-700 text-sm sm:text-base mb-2 line-clamp-2">{spot.tagline}</p>
+          )}
+          {spot.description && (
+            <p className="text-gray-500 text-xs sm:text-sm line-clamp-2 hidden sm:block">{spot.description}</p>
+          )}
+        </div>
+        <div className="flex items-end justify-between mt-3 pt-3 border-t border-gray-100 gap-3">
+          <div className="flex gap-1.5 flex-wrap">
+            {spot.tags?.slice(0, 4).map(t => (
+              <span key={t} className="bg-gray-100 text-gray-600 text-[11px] px-2 py-0.5 rounded-full">#{t}</span>
+            ))}
+          </div>
+          {spot.area && (
+            <div className="text-xs text-gray-500 flex-shrink-0">{spot.area}</div>
           )}
         </div>
       </div>
 
-      {/* Bottom text */}
-      <div className="absolute bottom-0 left-0 right-0 p-3">
-        <h4 className={`text-white font-bold text-xs leading-snug line-clamp-2 mb-1 transition-colors ${
-          isSelected ? 'text-[#FFD23F]' : ''
-        }`}>
-          {spot.name}
-        </h4>
-        {spot.quote && (
-          <p className="text-white/55 text-[10px] line-clamp-1 leading-snug">
-            {spot.quote}
-          </p>
-        )}
-        {spot.priceRange && (
-          <p className="text-white/35 text-[9px] mt-1">{spot.priceRange}</p>
+      {/* Top-right checkbox */}
+      <div className={`absolute top-4 right-4 w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all ${
+        isSelected ? 'bg-[#FF7847] border-[#FF7847]' : 'bg-white border-gray-300 group-hover:border-[#FF7847]'
+      }`}>
+        {isSelected && (
+          <svg width="14" height="11" viewBox="0 0 14 11" fill="none">
+            <path d="M1 5l4 4 8-8" stroke="white" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
         )}
       </div>
-    </button>
+    </div>
   );
 }
 
@@ -116,18 +118,18 @@ function CategoryRow({ tab, spots, selected, onToggle }) {
   const selectedCount = spots.filter(s => selected.has(s.id)).length;
 
   return (
-    <div className="mb-7">
-      <div className="flex items-center gap-2 px-4 mb-3">
-        <span className="text-base">{TAB_EMOJI[tab]}</span>
-        <span className="text-sm font-bold text-[#1A1A1A]">{tab}</span>
-        <span className="text-[11px] text-[#AAA] bg-[#F5F5F5] px-1.5 py-0.5 rounded-full">{spots.length}</span>
+    <div className="mb-12">
+      <div className="flex items-center gap-3 mb-5">
+        <span className="text-2xl">{TAB_EMOJI[tab]}</span>
+        <h3 className="text-2xl font-black text-[#1A1A1A]">{tab}</h3>
+        <span className="text-sm text-[#AAA] bg-[#F5F5F5] px-2 py-0.5 rounded-full">{spots.length}</span>
         {selectedCount > 0 && (
-          <span className="text-[11px] font-bold text-[#FF6B35] bg-[#FFF0EB] px-2 py-0.5 rounded-full">
-            ✓ {selectedCount}
+          <span className="text-sm font-bold text-[#FF7847] bg-[#FFF0EB] px-3 py-1 rounded-full">
+            ✓ 已選 {selectedCount}
           </span>
         )}
       </div>
-      <div className="flex gap-3 px-4 overflow-x-auto pb-2 scrollbar-hide">
+      <div className="space-y-3">
         {spots.map(spot => (
           <SpotCard
             key={spot.id}
@@ -142,16 +144,18 @@ function CategoryRow({ tab, spots, selected, onToggle }) {
 }
 
 export default function SpotPicker({ theme, spots, images = [], onGenerate, onAiPick, loading }) {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('全部');
   const [selected, setSelected] = useState(new Set());
 
   // Filter to only real spots (no 攻略), enrich with tab + image
   const enriched = useMemo(() => {
-    const filtered = spots.filter(s => SPOT_TYPES.includes(s.type));
-    return filtered.map((s, i) => ({
+    return spots.map((s, i) => ({
       ...s,
-      tab: TYPE_TO_TAB[s.type] || '體驗',
+      id: s.id || `${s.name}-${i}`,
+      tab: TYPE_TO_TAB[s.type] || '景點',
       image: images.length > 0 ? images[i % images.length] : null,
+      isCommunity: !s.source_article,
     }));
   }, [spots, images]);
 
@@ -206,45 +210,78 @@ export default function SpotPicker({ theme, spots, images = [], onGenerate, onAi
   }
 
   return (
-    <div className="pb-36">
-      {/* Instruction */}
-      <div className="px-4 pt-4 pb-3">
-        <p className="text-[13px] text-[#444] font-medium">
-          選你想去的地方，AI 導遊幫你排成最佳動線
-        </p>
-        <p className="text-[11px] text-[#AAA] mt-0.5">左右滑動查看，打勾加入行程</p>
+    <div className="pb-36 bg-white">
+      {/* Hero matching ItineraryPage done view */}
+      {theme && (
+        <section className={`relative bg-gradient-to-br ${theme.coverGradient} min-h-[440px] flex items-center justify-center overflow-hidden pt-20 pb-12`}>
+          <button onClick={() => navigate('/')}
+            className="absolute top-6 left-6 z-20 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white px-4 py-2.5 rounded-full transition-all flex items-center gap-2 font-semibold text-sm">
+            ← 返回首頁
+          </button>
+          <div className="relative z-10 text-center text-white px-6 max-w-4xl py-14">
+            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm mb-5">
+              <span>{theme.city}</span><span>·</span><span>{theme.duration}</span>
+            </div>
+            <h1 className="text-5xl sm:text-6xl font-black mb-4 drop-shadow-lg">{theme.name}</h1>
+            <p className="text-lg sm:text-xl text-white/90 mb-6 max-w-2xl mx-auto leading-relaxed">{theme.description}</p>
+            <p className="text-white/80 text-sm">✦ 選你想去的地方，AI 幫你排成最佳動線</p>
+          </div>
+        </section>
+      )}
+
+      {/* Step indicator */}
+      <div className="bg-white border-b">
+        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center gap-4">
+          <div className="flex items-center gap-2 text-gray-400">
+            <div className="w-7 h-7 rounded-full bg-gray-300 text-white flex items-center justify-center text-xs font-bold">1</div>
+            <span className="text-sm font-medium">選擇主題</span>
+          </div>
+          <div className="w-8 h-0.5 bg-gray-300" />
+          <div className="flex items-center gap-2 text-[#FF7847]">
+            <div className="w-7 h-7 rounded-full bg-[#FF7847] text-white flex items-center justify-center text-xs font-bold">2</div>
+            <span className="text-sm font-bold">選擇景點</span>
+          </div>
+          <div className="w-8 h-0.5 bg-gray-300" />
+          <div className="flex items-center gap-2 text-gray-400">
+            <div className="w-7 h-7 rounded-full bg-gray-300 text-white flex items-center justify-center text-xs font-bold">3</div>
+            <span className="text-sm font-medium">完成行程</span>
+          </div>
+        </div>
       </div>
 
-      {/* Tab filter bar */}
-      <div className="flex gap-2 px-4 overflow-x-auto pb-3 scrollbar-hide">
-        {availableTabs.map(tab => (
-          <button
+      {/* Sticky tabs */}
+      <div className="bg-white border-b sticky top-0 z-20">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex gap-6 overflow-x-auto scrollbar-hide">
+            {availableTabs.map(tab => {
+              const count = tab === '全部' ? enriched.length : enriched.filter(s => s.tab === tab).length;
+              return (
+                <button key={tab} onClick={() => setActiveTab(tab)}
+                  className={`py-4 px-2 font-semibold whitespace-nowrap border-b-2 transition-all ${
+                    activeTab === tab
+                      ? 'text-gray-900 border-[#FF7847]'
+                      : 'text-gray-500 border-transparent hover:text-gray-900'
+                  }`}>
+                  {TAB_EMOJI[tab]} {tab} <span className="text-gray-400 text-sm ml-1">({count})</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Category sections */}
+      <div className="max-w-5xl mx-auto px-6 py-12">
+        {Object.entries(grouped).map(([tab, tabSpots]) => (
+          <CategoryRow
             key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`flex-shrink-0 flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-full transition-all ${
-              activeTab === tab
-                ? 'bg-[#FF6B35] text-white shadow-sm shadow-[#FF6B35]/30'
-                : 'bg-[#F5F5F5] text-[#666] hover:bg-[#EEE]'
-            }`}
-          >
-            <span>{TAB_EMOJI[tab]}</span>
-            <span>{tab}</span>
-          </button>
+            tab={tab}
+            spots={tabSpots}
+            selected={selected}
+            onToggle={toggle}
+          />
         ))}
       </div>
-
-      <div className="h-px bg-[#F0F0F0] mx-4 mb-5" />
-
-      {/* Category rows */}
-      {Object.entries(grouped).map(([tab, tabSpots]) => (
-        <CategoryRow
-          key={tab}
-          tab={tab}
-          spots={tabSpots}
-          selected={selected}
-          onToggle={toggle}
-        />
-      ))}
 
       {enriched.length === 0 && !loading && (
         <div className="text-center py-12 px-4">
