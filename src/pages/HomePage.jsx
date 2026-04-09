@@ -341,19 +341,27 @@ export default function HomePage() {
           </p>
 
           {/* CTAs */}
-          <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 max-w-3xl mx-auto px-4 sm:px-0">
-            <button onClick={() => setShowFilter(true)}
-              className="w-full sm:flex-1 bg-white text-[#E04400] px-6 py-3.5 sm:py-4 rounded-full font-bold text-base sm:text-lg shadow-lg hover:shadow-xl hover:scale-105 hover:bg-orange-50 transition-all duration-300 whitespace-nowrap">
-              告訴我你想怎麼玩
-            </button>
-            <button onClick={() => navigate('/explore')}
-              className="w-full sm:flex-1 border-2 border-white text-white px-6 py-3.5 sm:py-4 rounded-full font-bold text-base sm:text-lg hover:bg-white/20 backdrop-blur-sm transition-all duration-300 whitespace-nowrap">
-              依城市探索
-            </button>
-            <button onClick={() => navigate('/escape-game')}
-              className="w-full sm:flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3.5 sm:py-4 rounded-full font-bold text-base sm:text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 whitespace-nowrap">
-              城市逃脫遊戲
-            </button>
+          <div className="max-w-3xl mx-auto px-4 sm:px-0 space-y-3 sm:space-y-0 mb-8">
+            <div className="flex sm:flex-row gap-3 sm:gap-4">
+              <button onClick={() => setShowFilter(true)}
+                className="flex-1 bg-white text-[#E04400] px-4 sm:px-6 py-3.5 sm:py-4 rounded-full font-bold text-sm sm:text-lg shadow-lg hover:shadow-xl hover:scale-105 hover:bg-orange-50 transition-all duration-300 whitespace-nowrap">
+                告訴我你想怎麼玩
+              </button>
+              <button onClick={() => navigate('/explore')}
+                className="flex-1 border-2 border-white text-white px-4 sm:px-6 py-3.5 sm:py-4 rounded-full font-bold text-sm sm:text-lg hover:bg-white/20 backdrop-blur-sm transition-all duration-300 whitespace-nowrap">
+                依城市探索
+              </button>
+              <button onClick={() => navigate('/escape-game')}
+                className="hidden sm:block flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-4 rounded-full font-bold text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 whitespace-nowrap">
+                城市逃脫遊戲
+              </button>
+            </div>
+            <div className="flex sm:hidden justify-center">
+              <button onClick={() => navigate('/escape-game')}
+                className="w-1/2 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-3.5 rounded-full font-bold text-sm shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 whitespace-nowrap">
+                城市逃脫遊戲
+              </button>
+            </div>
           </div>
         </div>
 

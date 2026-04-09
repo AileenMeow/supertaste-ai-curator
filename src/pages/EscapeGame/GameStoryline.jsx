@@ -251,11 +251,12 @@ export default function GameStoryline() {
     <div className="min-h-screen" style={{ background: game.theme.gradient, fontFamily: game.theme.fontFamily }}>
       {/* Header */}
       <header className="sticky top-0 z-40 backdrop-blur-xl border-b" style={{ background: ct.headerBg, borderColor: ct.border }}>
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-5">
-              <Link to="/escape-game" className="hover:opacity-80 transition flex items-center gap-2 text-sm" style={{ color: ct.accent, fontFamily: ct.font }}>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0">
+            {/* Row 1: actions + progress */}
+            <div className="flex items-center justify-between sm:justify-start sm:gap-5">
+              <Link to="/escape-game" className="hover:opacity-80 transition flex items-center gap-1.5 text-xs sm:text-sm" style={{ color: ct.accent, fontFamily: ct.font }}>
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
                 {ct.label.back}
@@ -268,10 +269,14 @@ export default function GameStoryline() {
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
-                開場故事
+                {isTainan || isHualien ? '開場故事' : 'PROLOGUE'}
               </button>
+              <div className="sm:hidden text-[11px]" style={{ color: ct.accent, fontFamily: ct.font }}>
+                <span style={{ opacity: 0.7 }}>{ct.label.progress}</span> {completedMissions.length}/{game.missions.length}
+              </div>
             </div>
-            <div className="flex items-center gap-4">
+            {/* Row 2 on desktop: agent + progress */}
+            <div className="hidden sm:flex items-center gap-4">
               <div className="text-xs sm:text-sm" style={{ color: ct.accent, fontFamily: ct.font }}>
                 <span style={{ opacity: 0.7 }}>{ct.label.agent}</span> {ct.label.agentName}
               </div>

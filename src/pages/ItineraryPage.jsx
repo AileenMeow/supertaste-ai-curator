@@ -730,7 +730,7 @@ export default function ItineraryPage() {
                     <div className="inline-flex items-center gap-1.5 bg-orange-100 text-orange-600 px-4 py-1.5 rounded-full text-sm mb-3">
                       <HdFork size={14} color="#ea580c" /> 附近用餐推薦
                     </div>
-                    <h2 className="text-3xl sm:text-4xl font-black text-gray-900">逛累了？這些餐廳就在附近</h2>
+                    <h2 className="text-xl sm:text-4xl font-black text-gray-900 whitespace-nowrap">逛累了？這些餐廳就在附近</h2>
                     <p className="text-gray-600 text-lg mt-2">食尚玩家嚴選，{theme.city}周邊美食</p>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
