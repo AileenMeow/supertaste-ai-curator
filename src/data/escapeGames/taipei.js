@@ -11,7 +11,7 @@ export const taipeiGame = {
     backgroundColor: '#0A0E27',
     accentColor: '#FF006E',
     fontFamily: '"Orbitron", "Noto Sans TC", sans-serif',
-    gradient: 'linear-gradient(135deg, #0A0E27 0%, #1A1F3A 50%, #00D9FF 100%)',
+    gradient: 'linear-gradient(135deg, #0A0E27 0%, #1a1a1a 50%, #2d2d2d 100%)',
   },
   prologue: {
     title: '系統啟動...',

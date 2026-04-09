@@ -12,8 +12,8 @@ const CITY_CONFIG = {
         <path strokeLinecap="round" strokeWidth={1.8} d="M2 11l2-3M22 11l-2-3" />
       </svg>
     ),
-    accentColor: '#00D9FF',
-    bgPattern: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,217,255,0.05) 10px, rgba(0,217,255,0.05) 20px)',
+    accentColor: '#1f2937',
+    bgPattern: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.03) 10px, rgba(255,255,255,0.03) 20px)',
   },
   tainan: {
     icon: (
@@ -88,11 +88,15 @@ export default function EscapeGameHome() {
             return (
               <div key={game.id} className="group relative" style={{ animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both` }}>
                 <Link to={`/escape-game/${game.id}`} className="block">
-                  <div className="relative overflow-hidden rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-white border border-gray-100">
+                  <div className="relative overflow-hidden rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-100"
+                    style={{ background: game.theme.gradient }}>
+                    {/* Bg pattern overlay */}
+                    <div className="absolute inset-0 opacity-30 pointer-events-none" style={{ backgroundImage: config.bgPattern }} />
+
                     {isCompleted && (
-                      <div className="absolute top-4 right-4 z-10">
-                        <div className="bg-gradient-to-r from-yellow-400 to-orange-400 text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg flex items-center gap-1">
-                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <div className="absolute top-4 right-4 z-20">
+                        <div className="bg-gradient-to-r from-yellow-400 to-orange-400 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg flex items-center gap-1">
+                          <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                           </svg>
                           已完成
@@ -100,33 +104,33 @@ export default function EscapeGameHome() {
                       </div>
                     )}
 
-                    <div className="relative h-32 flex items-center justify-center overflow-hidden" style={{ background: game.theme.gradient }}>
-                      <div className="absolute inset-0 opacity-30" style={{ backgroundImage: config.bgPattern }} />
-                      <div className="relative z-10 w-16 h-16 text-white/90 group-hover:scale-110 transition-transform duration-500">
+                    {/* Horizontal layout: info left, icon right */}
+                    <div className="relative z-10 p-5 flex items-start gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="inline-block mb-2">
+                          <div className="bg-white/90 text-gray-800 px-3 py-0.5 rounded-full text-xs font-bold">
+                            {game.city}
+                          </div>
+                        </div>
+                        <h3 className="text-xl font-bold text-white mb-1 leading-tight">{game.title}</h3>
+                        <p className="text-sm text-white/80 leading-snug">{game.subtitle}</p>
+                      </div>
+                      <div className="flex-shrink-0 w-14 h-14 text-white/90 group-hover:scale-110 transition-transform duration-500">
                         {config.icon}
                       </div>
-                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                        style={{ background: `radial-gradient(circle at center, ${config.accentColor}40 0%, transparent 70%)` }} />
                     </div>
 
-                    <div className="p-5">
-                      <div className="inline-block mb-2">
-                        <div className="text-white px-3 py-0.5 rounded-full text-xs font-bold" style={{ backgroundColor: config.accentColor }}>
-                          {game.city}
-                        </div>
-                      </div>
-                      <h3 className="text-xl font-bold text-gray-800 mb-1 group-hover:text-orange-600 transition">{game.title}</h3>
-                      <p className="text-sm text-gray-600 mb-3 leading-snug">{game.subtitle}</p>
-
+                    {/* Meta + progress + CTA on white */}
+                    <div className="relative z-10 bg-white p-4">
                       <div className="flex flex-wrap gap-3 mb-3">
-                        <div className="flex items-center gap-1 text-sm text-gray-500">
-                          <svg className="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                          <svg className="w-3.5 h-3.5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                           </svg>
                           <span>難度 {game.difficulty}/5</span>
                         </div>
-                        <div className="flex items-center gap-1 text-sm text-gray-500">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
                           {game.estimatedTime}
@@ -135,24 +139,22 @@ export default function EscapeGameHome() {
 
                       {isStarted && !isCompleted && (
                         <div className="mb-3">
-                          <div className="flex justify-between text-xs text-gray-500 mb-2">
+                          <div className="flex justify-between text-xs text-gray-500 mb-1">
                             <span>遊戲進度</span>
                             <span className="font-semibold">{completedCount}/{total}</span>
                           </div>
-                          <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                          <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
                             <div className="h-full rounded-full transition-all duration-500" style={{ width: `${(completedCount / total) * 100}%`, backgroundColor: config.accentColor }} />
                           </div>
                         </div>
                       )}
 
-                      <div className="pt-1">
-                        <div className="w-full py-2.5 rounded-full font-bold text-center transition-all duration-300 flex items-center justify-center gap-2 group-hover:gap-3 text-sm"
-                          style={{ backgroundColor: config.accentColor, color: '#fff' }}>
-                          {isCompleted ? '重新體驗' : isStarted ? '繼續冒險' : '開始冒險'}
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                          </svg>
-                        </div>
+                      <div className="w-full py-2.5 rounded-full font-bold text-center transition-all duration-300 flex items-center justify-center gap-2 group-hover:gap-3 text-sm"
+                        style={{ backgroundColor: config.accentColor, color: '#fff' }}>
+                        {isCompleted ? '重新體驗' : isStarted ? '繼續冒險' : '開始冒險'}
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
                       </div>
                     </div>
                   </div>
