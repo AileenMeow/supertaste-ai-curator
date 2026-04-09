@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop';
+import PasswordGate from './components/PasswordGate';
 import HomePage from './pages/HomePage';
 import ItineraryPage from './pages/ItineraryPage';
 import ExplorePage from './pages/ExplorePage';
@@ -10,6 +11,7 @@ import GameComplete from './pages/EscapeGame/GameComplete';
 
 export default function App() {
   return (
+    <PasswordGate>
     <BrowserRouter>
       <ScrollToTop />
       <Routes>
@@ -22,5 +24,6 @@ export default function App() {
         <Route path="/escape-game/:city/complete" element={<GameComplete />} />
       </Routes>
     </BrowserRouter>
+    </PasswordGate>
   );
 }

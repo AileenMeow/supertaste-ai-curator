@@ -144,6 +144,18 @@ export const HdThinking = ({ size = 80, color = '#9ca3af' }) => (
   </svg>
 );
 
+export const HdLock = ({ size = 64, color = '#FF7847' }) => (
+  <svg width={size} height={size} viewBox="0 0 64 64" {...base} stroke={color} strokeWidth="3">
+    {/* Shackle (slightly wobbly) */}
+    <path d="M20 28 Q19 18 24 14 Q32 9 40 14 Q45 18 44 28" />
+    {/* Body */}
+    <path d="M14 30 Q13 30 13 32 L13 52 Q13 55 16 55 L48 55 Q51 55 51 52 L51 32 Q51 30 50 30 Z" />
+    {/* Keyhole */}
+    <circle cx="32" cy="40" r="3" />
+    <path d="M32 43 L32 48" strokeWidth="3.5" />
+  </svg>
+);
+
 export const HdRefresh = ({ size = 18, color = '#FF7847' }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" {...base} stroke={color} strokeWidth="2.4">
     <path d="M20 6 Q17 3 12 3 Q5 3 4 11" />
