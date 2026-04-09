@@ -832,6 +832,8 @@ export default function ItineraryPage() {
                   hasFetched.current = false;
                   setItinerary(null);
                   setActiveTab('all');
+                  // Reload spots in case the cached path skipped them earlier
+                  if (realTheme) setThemeSpots(realTheme.spots || []);
                   setPhase('picking');
                 }}>
                 <HdRefresh size={18} color="#FF7847" /> 重新規劃行程

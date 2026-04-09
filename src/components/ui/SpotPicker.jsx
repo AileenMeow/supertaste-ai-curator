@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { HdFork, HdPin, HdMask, HdBag, HdTag, HdInfo, HdCheck, HdClose } from '../icons/HandDrawn';
+import { HdFork, HdPin, HdMask, HdBag, HdTag, HdInfo, HdCheck, HdClose, HdStar } from '../icons/HandDrawn';
 
 // Map English type from real JSON → tab group
 const TYPE_TO_TAB = {
@@ -45,8 +45,12 @@ const THEME_DECO = {
 
 const TAB_ORDER = ['全部', '美食', '景點', '文化', '購物'];
 
-const TAB_EMOJI = {
-  '全部': '✨', '美食': '🍽️', '景點': '📍', '文化': '🎭', '購物': '🛍️',
+const TAB_ICON = {
+  '全部': { Icon: HdStar, color: '#f59e0b' },
+  '美食': { Icon: HdFork, color: '#1d4ed8' },
+  '景點': { Icon: HdPin,  color: '#15803d' },
+  '文化': { Icon: HdMask, color: '#7c3aed' },
+  '購物': { Icon: HdBag,  color: '#be185d' },
 };
 
 // Fallback gradients per tab (shown when no image)
@@ -155,15 +159,17 @@ function SpotCard({ spot, isSelected, onToggle }) {
 function CategoryRow({ tab, spots, selected, onToggle }) {
   const selectedCount = spots.filter(s => selected.has(s.id)).length;
 
+  const tabIcon = TAB_ICON[tab];
+  const TIc = tabIcon?.Icon;
   return (
     <div className="mb-12">
       <div className="flex items-center gap-3 mb-5">
-        <span className="text-2xl">{TAB_EMOJI[tab]}</span>
+        {TIc && <TIc size={24} color={tabIcon.color} />}
         <h3 className="text-2xl font-black text-[#1A1A1A]">{tab}</h3>
         <span className="text-sm text-[#AAA] bg-[#F5F5F5] px-2 py-0.5 rounded-full">{spots.length}</span>
         {selectedCount > 0 && (
-          <span className="text-sm font-bold text-[#FF7847] bg-[#FFF0EB] px-3 py-1 rounded-full">
-            ✓ 已選 {selectedCount}
+          <span className="text-sm font-bold text-[#FF7847] bg-[#FFF0EB] px-3 py-1 rounded-full inline-flex items-center gap-1">
+            <HdCheck size={12} color="#FF7847" /> 已選 {selectedCount}
           </span>
         )}
       </div>
@@ -327,12 +333,13 @@ export default function SpotPicker({ theme, spots, images = [], onGenerate, onAi
               const count = tab === '全部' ? enriched.length : enriched.filter(s => s.tab === tab).length;
               return (
                 <button key={tab} onClick={() => setActiveTab(tab)}
-                  className={`py-4 px-2 font-semibold whitespace-nowrap border-b-2 transition-all ${
+                  className={`py-4 px-2 font-semibold whitespace-nowrap border-b-2 transition-all inline-flex items-center gap-1.5 ${
                     activeTab === tab
                       ? 'text-gray-900 border-[#FF7847]'
                       : 'text-gray-500 border-transparent hover:text-gray-900'
                   }`}>
-                  {TAB_EMOJI[tab]} {tab} <span className="text-gray-400 text-sm ml-1">({count})</span>
+                  {TAB_ICON[tab] && (() => { const I = TAB_ICON[tab].Icon; return <I size={16} color={TAB_ICON[tab].color} />; })()}
+                  {tab} <span className="text-gray-400 text-sm">({count})</span>
                 </button>
               );
             })}
