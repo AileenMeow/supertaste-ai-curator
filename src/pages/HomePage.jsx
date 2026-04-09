@@ -336,22 +336,22 @@ export default function HomePage() {
             <span style={{ color: '#FFF8E7' }}>開啟一場有溫度的旅行</span>
           </h1>
 
-          <p className="text-sm sm:text-base text-white/70 mb-7 font-medium">
+          <p className="text-xs sm:text-base text-white/70 mb-7 font-medium whitespace-nowrap">
             台北・台南・花蓮 × 各10種玩法，點選主題即刻生成行程
           </p>
 
           {/* CTAs */}
-          <div className="flex justify-center gap-4 flex-wrap sm:flex-nowrap max-w-3xl mx-auto">
+          <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 max-w-3xl mx-auto px-4 sm:px-0">
             <button onClick={() => setShowFilter(true)}
-              className="sm:flex-1 bg-white text-[#E04400] px-6 py-4 rounded-full font-bold text-base sm:text-lg shadow-lg hover:shadow-xl hover:scale-105 hover:bg-orange-50 transition-all duration-300 whitespace-nowrap">
+              className="w-full sm:flex-1 bg-white text-[#E04400] px-6 py-3.5 sm:py-4 rounded-full font-bold text-base sm:text-lg shadow-lg hover:shadow-xl hover:scale-105 hover:bg-orange-50 transition-all duration-300 whitespace-nowrap">
               告訴我你想怎麼玩
             </button>
             <button onClick={() => navigate('/explore')}
-              className="sm:flex-1 border-2 border-white text-white px-6 py-4 rounded-full font-bold text-base sm:text-lg hover:bg-white/20 backdrop-blur-sm transition-all duration-300 whitespace-nowrap">
+              className="w-full sm:flex-1 border-2 border-white text-white px-6 py-3.5 sm:py-4 rounded-full font-bold text-base sm:text-lg hover:bg-white/20 backdrop-blur-sm transition-all duration-300 whitespace-nowrap">
               依城市探索
             </button>
             <button onClick={() => navigate('/escape-game')}
-              className="sm:flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-4 rounded-full font-bold text-base sm:text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 whitespace-nowrap">
+              className="w-full sm:flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3.5 sm:py-4 rounded-full font-bold text-base sm:text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 whitespace-nowrap">
               城市逃脫遊戲
             </button>
           </div>
@@ -455,10 +455,13 @@ export default function HomePage() {
       </section>
 
       {/* ══ FOOTER ══════════════════════════════════════════════ */}
-      <footer className="bg-black py-12">
-        <div className="max-w-7xl mx-auto px-6 text-center">
+      <footer className="bg-black py-10">
+        <div className="max-w-7xl mx-auto px-6 text-center space-y-2">
           <p className="text-white text-sm">
             食尚玩家 AI 導遊 · 由 Claude AI 驅動 · Prototype v1.26
+          </p>
+          <p className="text-white/60 text-xs">
+            這隊很有料 · 舜子 · 劉澐 · 安啾 · Aileen
           </p>
         </div>
       </footer>

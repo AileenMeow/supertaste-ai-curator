@@ -438,7 +438,7 @@ export default function GameStoryline() {
                               style={{ background: ct.btnBg, color: ct.btnText, boxShadow: `0 0 20px ${ct.glow}`, fontFamily: ct.font }}>
                               {ct.label.uploadBtn}
                             </label>
-                            <input id={`upload-${mission.id}`} type="file" accept="image/*" capture="environment" className="hidden"
+                            <input id={`upload-${mission.id}`} type="file" accept="image/*" className="hidden"
                               onChange={(e) => handlePhotoUpload(mission.id, e)} />
                           </div>
                         )}
