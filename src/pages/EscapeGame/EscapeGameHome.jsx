@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import { ESCAPE_GAME_LIST } from '../../data/escapeGames';
 import useEscapeGameStore from '../../store/escapeGameStore';
 
@@ -37,8 +38,10 @@ const CITY_CONFIG = {
 };
 
 export default function EscapeGameHome() {
+  const navigate = useNavigate();
   const progress = useEscapeGameStore((s) => s.progress);
   const resetCity = useEscapeGameStore((s) => s.resetCity);
+  const [confirmCityId, setConfirmCityId] = useState(null);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-yellow-50">
@@ -93,24 +96,22 @@ export default function EscapeGameHome() {
                     {/* Bg pattern overlay */}
                     <div className="absolute inset-0 opacity-30 pointer-events-none" style={{ backgroundImage: config.bgPattern }} />
 
-                    {isCompleted && (
-                      <div className="absolute top-4 right-4 z-20">
-                        <div className="bg-gradient-to-r from-yellow-400 to-orange-400 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg flex items-center gap-1">
-                          <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                          </svg>
-                          已完成
-                        </div>
-                      </div>
-                    )}
 
                     {/* Horizontal layout: info left, icon right */}
                     <div className="relative z-10 p-5 flex items-start gap-4">
                       <div className="flex-1 min-w-0">
-                        <div className="inline-block mb-2">
+                        <div className="flex items-center gap-2 mb-2">
                           <div className="bg-white/90 text-gray-800 px-3 py-0.5 rounded-full text-xs font-bold">
                             {game.city}
                           </div>
+                          {isCompleted && (
+                            <div className="bg-gradient-to-r from-yellow-400 to-orange-400 text-white px-2.5 py-0.5 rounded-full text-[11px] font-bold shadow flex items-center gap-1">
+                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                              </svg>
+                              已完成
+                            </div>
+                          )}
                         </div>
                         <h3 className="text-xl font-bold text-white mb-1 leading-tight">{game.title}</h3>
                         <p className="text-sm text-white/80 leading-snug">{game.subtitle}</p>
@@ -137,17 +138,20 @@ export default function EscapeGameHome() {
                         </div>
                       </div>
 
-                      {isStarted && !isCompleted && (
-                        <div className="mb-3">
-                          <div className="flex justify-between text-xs text-gray-500 mb-1">
-                            <span>遊戲進度</span>
-                            <span className="font-semibold">{completedCount}/{total}</span>
-                          </div>
-                          <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
-                            <div className="h-full rounded-full transition-all duration-500" style={{ width: `${(completedCount / total) * 100}%`, backgroundColor: config.accentColor }} />
-                          </div>
-                        </div>
-                      )}
+                      {/* Progress slot — always reserves height for consistent card layout */}
+                      <div className="mb-3 h-9">
+                        {isStarted && (
+                          <>
+                            <div className="flex justify-between text-xs text-gray-500 mb-1">
+                              <span>遊戲進度</span>
+                              <span className="font-semibold">{completedCount}/{total}</span>
+                            </div>
+                            <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                              <div className="h-full rounded-full transition-all duration-500" style={{ width: `${(completedCount / total) * 100}%`, backgroundColor: config.accentColor }} />
+                            </div>
+                          </>
+                        )}
+                      </div>
 
                       {isCompleted ? (
                         <div className="grid grid-cols-2 gap-2">
@@ -161,12 +165,7 @@ export default function EscapeGameHome() {
                             查看回顧
                           </Link>
                           <button
-                            onClick={() => {
-                              if (confirm('確定要重新開始嗎？進度將會清除。')) {
-                                resetCity(game.id);
-                                window.location.href = `/escape-game/${game.id}`;
-                              }
-                            }}
+                            onClick={() => setConfirmCityId(game.id)}
                             className="py-2.5 rounded-full font-bold text-center transition-all duration-300 text-xs flex items-center justify-center gap-1"
                             style={{ backgroundColor: config.accentColor, color: '#fff' }}>
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -198,6 +197,37 @@ export default function EscapeGameHome() {
           </p>
         </div>
       </div>
+
+      {/* Custom confirm modal */}
+      {confirmCityId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setConfirmCityId(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 sm:p-8 text-center" onClick={(e) => e.stopPropagation()}>
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-orange-100 flex items-center justify-center">
+              <svg className="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-black text-gray-900 mb-2">重新開始故事？</h3>
+            <p className="text-gray-600 text-sm mb-6">你目前的進度會被清除，這個動作無法復原。</p>
+            <div className="flex gap-3">
+              <button onClick={() => setConfirmCityId(null)}
+                className="flex-1 py-3 rounded-full font-bold bg-gray-100 hover:bg-gray-200 text-gray-700 transition-all">
+                取消
+              </button>
+              <button
+                onClick={() => {
+                  resetCity(confirmCityId);
+                  const id = confirmCityId;
+                  setConfirmCityId(null);
+                  navigate(`/escape-game/${id}`);
+                }}
+                className="flex-1 py-3 rounded-full font-bold bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white transition-all shadow-lg">
+                確定重新開始
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
