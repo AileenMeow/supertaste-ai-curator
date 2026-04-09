@@ -350,6 +350,10 @@ export default function HomePage() {
               className="border-2 border-white text-white px-8 py-4 rounded-full font-bold text-base sm:text-lg hover:bg-white/20 backdrop-blur-sm transition-all duration-300">
               依城市探索
             </button>
+            <button onClick={() => navigate('/escape-game')}
+              className="bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 text-white px-8 py-4 rounded-full font-bold text-base sm:text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center gap-2">
+              🔍 城市逃脫遊戲
+            </button>
           </div>
         </div>
 
