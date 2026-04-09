@@ -458,7 +458,7 @@ export default function HomePage() {
       <footer className="bg-black py-12">
         <div className="max-w-7xl mx-auto px-6 text-center">
           <p className="text-white text-sm">
-            食尚玩家 AI 導遊 · 由 Claude AI 驅動 · Prototype v1.12
+            食尚玩家 AI 導遊 · 由 Claude AI 驅動 · Prototype v1.26
           </p>
         </div>
       </footer>

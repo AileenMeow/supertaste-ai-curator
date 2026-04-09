@@ -198,6 +198,14 @@ export default function EscapeGameHome() {
         </div>
       </div>
 
+      <footer className="bg-black py-12 mt-8">
+        <div className="max-w-7xl mx-auto px-6 text-center">
+          <p className="text-white text-sm">
+            食尚玩家 AI 導遊 · 由 Claude AI 驅動 · Prototype v1.26
+          </p>
+        </div>
+      </footer>
+
       {/* Custom confirm modal */}
       {confirmCityId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setConfirmCityId(null)}>
