@@ -199,9 +199,12 @@ export default function EscapeGameHome() {
       </div>
 
       <footer className="bg-black py-4 mt-4">
-        <div className="max-w-7xl mx-auto px-6 text-center">
+        <div className="max-w-7xl mx-auto px-6 text-center space-y-1">
           <p className="text-white text-xs">
             食尚玩家 AI 導遊 · 由 Claude AI 驅動 · Prototype v1.26
+          </p>
+          <p className="text-white/60 text-[11px]">
+            這隊很有料 · 舜子 · 劉澐 · 安啾 · Aileen
           </p>
         </div>
       </footer>
