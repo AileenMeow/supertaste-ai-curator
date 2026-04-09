@@ -6,7 +6,10 @@ const CITY_CONFIG = {
   taipei: {
     icon: (
       <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 21V9l3-6 3 6v12M9 21h6M9 13h6M9 17h6M12 3v6" />
+        <circle cx="6.5" cy="13" r="3.5" strokeWidth={1.8} />
+        <circle cx="17.5" cy="13" r="3.5" strokeWidth={1.8} />
+        <path strokeLinecap="round" strokeWidth={1.8} d="M10 13h4" />
+        <path strokeLinecap="round" strokeWidth={1.8} d="M2 11l2-3M22 11l-2-3" />
       </svg>
     ),
     accentColor: '#00D9FF',
@@ -51,28 +54,25 @@ export default function EscapeGameHome() {
       </header>
 
       {/* Hero */}
-      <div className="container mx-auto px-6 py-16 text-center">
-        <div className="inline-block mb-6">
-          <div className="bg-gradient-to-r from-orange-500 to-pink-500 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg">
+      <div className="container mx-auto px-6 pt-6 pb-4 text-center">
+        <div className="inline-block mb-3">
+          <div className="bg-gradient-to-r from-orange-500 to-pink-500 text-white px-5 py-1.5 rounded-full text-xs font-bold shadow-lg">
             ✨ 獨家互動體驗
           </div>
         </div>
-        <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-orange-600 via-pink-600 to-purple-600 bg-clip-text text-transparent">
+        <h1 className="text-4xl md:text-5xl font-bold mb-2 bg-gradient-to-r from-orange-600 via-pink-600 to-purple-600 bg-clip-text text-transparent">
           城市逃脫遊戲
         </h1>
-        <p className="text-xl text-gray-600 mb-4 max-w-2xl mx-auto leading-relaxed">
+        <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
           不只是旅遊，而是一場<span className="text-orange-600 font-bold">沉浸式冒險</span>
-        </p>
-        <p className="text-gray-500 max-w-xl mx-auto">
-          解謎、探索、發現真相 — 用遊戲的方式重新認識台灣
         </p>
       </div>
 
       {/* Cards */}
-      <div className="container mx-auto px-6 pb-24">
-        <div className="flex items-center justify-center gap-3 mb-12">
+      <div className="container mx-auto px-6 pb-8">
+        <div className="flex items-center justify-center gap-3 mb-5">
           <div className="h-px bg-gradient-to-r from-transparent via-orange-300 to-transparent flex-1 max-w-xs" />
-          <span className="text-orange-600 font-medium">選擇你的冒險</span>
+          <span className="text-orange-600 font-medium text-sm">選擇你的冒險</span>
           <div className="h-px bg-gradient-to-r from-transparent via-orange-300 to-transparent flex-1 max-w-xs" />
         </div>
 
@@ -100,25 +100,25 @@ export default function EscapeGameHome() {
                       </div>
                     )}
 
-                    <div className="relative h-48 flex items-center justify-center overflow-hidden" style={{ background: game.theme.gradient }}>
+                    <div className="relative h-32 flex items-center justify-center overflow-hidden" style={{ background: game.theme.gradient }}>
                       <div className="absolute inset-0 opacity-30" style={{ backgroundImage: config.bgPattern }} />
-                      <div className="relative z-10 w-24 h-24 text-white/90 group-hover:scale-110 transition-transform duration-500">
+                      <div className="relative z-10 w-16 h-16 text-white/90 group-hover:scale-110 transition-transform duration-500">
                         {config.icon}
                       </div>
                       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                         style={{ background: `radial-gradient(circle at center, ${config.accentColor}40 0%, transparent 70%)` }} />
                     </div>
 
-                    <div className="p-6">
-                      <div className="inline-block mb-3">
-                        <div className="text-white px-3 py-1 rounded-full text-xs font-bold" style={{ backgroundColor: config.accentColor }}>
+                    <div className="p-5">
+                      <div className="inline-block mb-2">
+                        <div className="text-white px-3 py-0.5 rounded-full text-xs font-bold" style={{ backgroundColor: config.accentColor }}>
                           {game.city}
                         </div>
                       </div>
-                      <h3 className="text-2xl font-bold text-gray-800 mb-2 group-hover:text-orange-600 transition">{game.title}</h3>
-                      <p className="text-gray-600 mb-4 leading-relaxed">{game.subtitle}</p>
+                      <h3 className="text-xl font-bold text-gray-800 mb-1 group-hover:text-orange-600 transition">{game.title}</h3>
+                      <p className="text-sm text-gray-600 mb-3 leading-snug">{game.subtitle}</p>
 
-                      <div className="flex flex-wrap gap-3 mb-4">
+                      <div className="flex flex-wrap gap-3 mb-3">
                         <div className="flex items-center gap-1 text-sm text-gray-500">
                           <svg className="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
@@ -134,7 +134,7 @@ export default function EscapeGameHome() {
                       </div>
 
                       {isStarted && !isCompleted && (
-                        <div className="mb-4">
+                        <div className="mb-3">
                           <div className="flex justify-between text-xs text-gray-500 mb-2">
                             <span>遊戲進度</span>
                             <span className="font-semibold">{completedCount}/{total}</span>
@@ -145,8 +145,8 @@ export default function EscapeGameHome() {
                         </div>
                       )}
 
-                      <div className="pt-2">
-                        <div className="w-full py-3 rounded-full font-bold text-center transition-all duration-300 flex items-center justify-center gap-2 group-hover:gap-3"
+                      <div className="pt-1">
+                        <div className="w-full py-2.5 rounded-full font-bold text-center transition-all duration-300 flex items-center justify-center gap-2 group-hover:gap-3 text-sm"
                           style={{ backgroundColor: config.accentColor, color: '#fff' }}>
                           {isCompleted ? '重新體驗' : isStarted ? '繼續冒險' : '開始冒險'}
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -162,8 +162,8 @@ export default function EscapeGameHome() {
           })}
         </div>
 
-        <div className="text-center mt-16">
-          <p className="text-gray-500 text-sm">
+        <div className="text-center mt-6">
+          <p className="text-gray-500 text-xs">
             提示：每個遊戲都需要實地前往景點拍照才能解鎖下一關
           </p>
         </div>
