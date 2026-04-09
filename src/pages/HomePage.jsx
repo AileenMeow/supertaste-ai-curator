@@ -351,8 +351,8 @@ export default function HomePage() {
               依城市探索
             </button>
             <button onClick={() => navigate('/escape-game')}
-              className="bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 text-white px-8 py-4 rounded-full font-bold text-base sm:text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center gap-2">
-              🔍 城市逃脫遊戲
+              className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-full font-bold text-base sm:text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
+              城市逃脫遊戲
             </button>
           </div>
         </div>
@@ -458,7 +458,7 @@ export default function HomePage() {
       <footer className="bg-black py-12">
         <div className="max-w-7xl mx-auto px-6 text-center">
           <p className="text-white text-sm">
-            食尚玩家 AI 導遊 · 由 Claude AI 驅動 · Prototype v1.0
+            食尚玩家 AI 導遊 · 由 Claude AI 驅動 · Prototype v1.12
           </p>
         </div>
       </footer>
