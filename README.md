@@ -2,22 +2,40 @@
 
 > 食尚玩家 500位合作達人 × Claude AI 策展，打造台灣深度旅遊行程
 
+🔗 **Live Demo:** https://supertaste-ai-curator.vercel.app/
+
+---
+
 ## 專案簡介
 
-這是一個以食尚玩家內容為核心的 AI 旅遊行程產生器。使用者選擇城市與玩法主題後，由 Claude AI 扮演「策展人」角色，將達人文章整理成有故事感的完整行程——包含時間規劃、達人金句、預算估算與食尚玩家來源引用。
+一個以食尚玩家內容為核心的 AI 旅遊行程產生器。使用者選擇主題、勾選想去的景點後，由 Claude AI 扮演「策展人」，依地理位置、營業時間、用餐動線重新排程，並生成個人化開場故事。
 
-**目前涵蓋範圍：** 台北、台南、花蓮 × 各10種玩法主題 = 30條精選路線
+外加一個彩蛋：**城市逃脫遊戲** — 將台北 / 台南 / 花蓮 各設計成五關情境冒險，使用者上傳實地照片解鎖故事，化旅遊為沉浸式體驗。
+
+**目前涵蓋範圍：** 台北、台南、花蓮 × 各 10 種玩法主題 = 30 條精選路線；29 個主題、約 1,500 筆店家／景點。
 
 ---
 
 ## 功能特色
 
-- **主題探索** — 首頁展示12個精選主題，支援依城市、旅遊風格、天數篩選
-- **隨機推薦** — 一鍵獲得驚喜玩法
-- **AI 行程生成** — 選定主題後即時呼叫 Claude API，生成含達人金句的時間軸行程
-- **Streaming 體驗** — 行程逐字顯示，有效降低等待感
-- **Session 快取** — 同一主題不重複呼叫 API
-- **來源引用** — 所有推薦點可追溯至食尚玩家原始報導
+### 🗺 AI 行程規劃
+- **30 條精選主題** — 首頁卡片展示，支援依城市 / 玩法風格 / 天數篩選
+- **景點挑選器** — 類別 tab + 大量景點卡片 + 全選 / 清除工具
+- **AI 智慧排程** — 一次 Claude API 呼叫同時產生：個人化開場故事、依營業時間與動線重排的順序、午晚餐推薦
+- **時間軸視覺** — 含營業時間、移動時間、用餐時段的完整一日行程
+- **真實資料來源** — 全部取自食尚玩家爬蟲（含 125 篇文章標題抓取）
+
+### 🎮 城市逃脫遊戲
+- **三條故事線** — 台北賽博龐克 × 台南民國穿越 × 花蓮部落史詩
+- **五關情境任務** — 每關獨立場景插圖、briefing、hint
+- **照片解鎖機制** — 上傳實地照片即解鎖下一段故事
+- **進度持久化** — Zustand + localStorage
+- **完賽證書頁** — 煙火動畫 + 證書徽章 + 照片牆 + 故事回顧
+
+### 💸 友善降級
+- AI 額度耗盡時跳出「錢不夠用了 QAQ」提示，瀏覽功能不受影響
+- 沒餐廳的主題自動從同城市其他主題撈推薦補上
+- 所有頁面切換都會自動 scroll 回頂
 
 ---
 
@@ -26,38 +44,24 @@
 | 層次 | 技術 |
 |------|------|
 | 前端框架 | React 19 + Vite 8 |
-| 路由 | React Router v7 |
-| 樣式 | Tailwind CSS v3 |
-| 動畫 | Framer Motion |
-| 狀態管理 | Zustand |
-| AI | Anthropic Claude (claude-sonnet-4) |
-| 資料來源 | 食尚玩家官網 + Excel 資料庫 (233筆) |
+| 路由 | React Router v7（含 ScrollToTop） |
+| 樣式 | Tailwind CSS v3 + 客製 CSS 動畫 |
+| 狀態管理 | Zustand（含 persist middleware） |
+| AI | Anthropic Claude（claude-haiku-4-5） |
+| 資料來源 | 食尚玩家爬蟲 JSON（29 主題 / 1,500+ 景點 / 125 篇文章標題） |
+| 部署 | Vercel（含 SPA rewrites） |
 
 ---
 
 ## 快速開始
 
-### 安裝依賴
-
 ```bash
 npm install
-```
-
-### 設定環境變數
-
-在專案根目錄建立 `.env` 檔：
-
-```env
-VITE_ANTHROPIC_API_KEY=your_api_key_here
-```
-
-> API Key 請至 [Anthropic Console](https://console.anthropic.com/) 取得
-
-### 啟動開發伺服器
-
-```bash
+echo "VITE_ANTHROPIC_API_KEY=sk-ant-..." > .env.local
 npm run dev
 ```
+
+> API Key 請至 [Anthropic Console](https://console.anthropic.com/settings/keys) 取得
 
 ### 建置正式版本
 
@@ -73,50 +77,95 @@ npm run preview
 ```
 src/
 ├── components/
-│   ├── icons/          # 自定義 SVG icon 元件
-│   └── ui/
-│       ├── ThemeCard.jsx     # 主題卡片
-│       └── FilterModal.jsx   # 篩選彈窗
+│   ├── icons/
+│   │   └── HandDrawn.jsx           # 手繪風 SVG icon set
+│   ├── ui/
+│   │   ├── ThemeCard.jsx           # IG 風格主題卡片
+│   │   ├── SpotPicker.jsx          # 景點挑選器（含 fixed bottom bar）
+│   │   └── FilterModal.jsx         # 條件篩選彈窗
+│   └── ScrollToTop.jsx             # 路由切換捲動到頂
 ├── data/
-│   ├── themes.js       # 30個主題靜態資料
-│   ├── systemPrompt.js # Claude 系統提示詞
-│   └── coverImages.js  # 封面圖設定
+│   ├── themes.js                   # 30 主題靜態 metadata
+│   ├── themeMapping.js             # themeId → 食尚資料對應
+│   ├── supertaste_spots_data.json  # 食尚玩家爬蟲主資料
+│   ├── article-titles.json         # 125 篇文章標題（爬蟲產出）
+│   └── escapeGames/                # 城市逃脫遊戲故事資料
+│       ├── taipei.js / tainan.js / hualien.js
+│       └── index.js
 ├── lib/
-│   └── generateItinerary.js  # Claude API 呼叫與 Streaming
+│   └── aiPlanner.js                # Claude 行程排序 / 故事生成
 ├── pages/
-│   ├── HomePage.jsx    # 首頁（主題瀏覽）
-│   ├── ExplorePage.jsx # 依城市探索
-│   └── ItineraryPage.jsx  # 行程結果頁
+│   ├── HomePage.jsx                # 首頁
+│   ├── ExplorePage.jsx             # 城市探索
+│   ├── ItineraryPage.jsx           # 景點挑選 → AI 行程結果
+│   ├── SavedPage.jsx               # 收藏清單
+│   └── EscapeGame/
+│       ├── EscapeGameHome.jsx      # 三城市選擇頁
+│       ├── GameStoryline.jsx       # 故事關卡頁（每城市專屬主題）
+│       └── GameComplete.jsx        # 完賽證書頁
+├── store/
+│   ├── savedSpotsStore.js          # 收藏景點 store
+│   └── escapeGameStore.js          # 遊戲進度 store（含 persist）
+└── utils/
+    └── spotDataMapper.js           # 補完欄位（budget / duration / hours）
+
+scripts/
+└── scrape-titles.mjs               # 抓取食尚文章 og:title
+
 public/
-└── data/
-    └── 3個縣市-10主題_完整版.xlsx  # 233筆食尚玩家資料
+├── data/theme-images.json          # 30 主題封面圖
+└── favicon.svg
 ```
-
----
-
-## 資料來源說明
-
-所有推薦內容皆來自食尚玩家官網 (supertaste.tvbs.com.tw)：
-
-- 233筆精選店家與景點資料
-- 每筆資料包含：標題、分類、達人金句、來源網址、地址、預算範圍
-- 涵蓋台北、台南、花蓮 × 10個玩法主題
 
 ---
 
 ## AI 策展邏輯
 
-Claude 被設定為「食尚玩家 AI 旅遊策展人」，而非對話機器人或搜尋引擎。每次行程生成包含：
+`src/lib/aiPlanner.js` 用一次 Claude Haiku 4.5 呼叫同時要三件事：
 
-1. **故事介紹** — 2-3句有畫面感的玩法說明
-2. **行程總覽** — 建議時間、預算、交通方式
-3. **時間軸行程** — 每個景點含達人金句與推薦理由
-4. **亮點整理** — 這條路線的獨特之處
-5. **預算明細** — 交通 / 餐飲 / 門票分項
-6. **延伸閱讀** — 對應食尚玩家原始文章連結
+```json
+{
+  "story": "70-120 字個人化開場（提到使用者選的元素）",
+  "ordered_indices": [依地理位置與動線重排後的索引],
+  "lunch_pick": "從餐廳池選最適合午餐的店名",
+  "dinner_pick": "從餐廳池選最適合晚餐的店名"
+}
+```
+
+排序規則包含：
+1. 開始時間是 09:00，**不會把當下還沒開門的店排在第一個**
+2. 同區的景點要排在一起
+3. 午餐時段（11:30-14:00）安排美食類
+4. 晚餐時段（18:00-20:30）安排美食類
+5. 戶外/景點優先白天，咖啡/酒吧排傍晚後
+
+夜間主題（含「不夜 / 夜 / 晚 / 凌晨」）自動從 18:00 開始。
+
+---
+
+## 城市逃脫遊戲故事線
+
+| 城市 | 主題 | 主角 | 風格 | 配色 |
+|---|---|---|---|---|
+| 台北 | 記憶代碼：AI 特工 | PHOENIX 失憶特工 | 賽博龐克 monospace | 深灰 + 霓虹藍 |
+| 台南 | 時空裂痕：古都迷航 | 李明華穿越者 | 民國復古 serif | 褐 + 米黃 + 紅 |
+| 花蓮 | 山海守護令：部落危機 | 部落使者勇者 | 部落史詩 | 森林綠 + 金黃 |
+
+每條故事線有 5 個關卡，每關包含專屬 SVG 場景插圖、briefing、hint、照片上傳、解鎖故事。完賽進入證書頁，可看完整 5 張照片牆 + 5 段故事回顧。
 
 ---
 
 ## 版本資訊
 
-**v1.0** — 初版 prototype，2026/04
+**v1.40** — 2026/04
+- 完整 AI 行程規劃 + 真實食尚玩家資料整合
+- 城市逃脫遊戲（3 城市 × 5 關 × 專屬視覺）
+- 完賽證書頁（煙火 / 徽章 / 照片牆 / 故事回顧）
+- Mobile RWD 優化
+- 部署上線 Vercel
+
+---
+
+## 開發團隊
+
+這隊很有料 · 舜子 · 劉澐 · 安啾 · Aileen
