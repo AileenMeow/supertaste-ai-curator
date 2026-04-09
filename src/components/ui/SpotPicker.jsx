@@ -436,7 +436,7 @@ export default function SpotPicker({ theme, spots, images = [], onGenerate, onAi
             ) : (
               <button onClick={onAiPick}
                 className="bg-gradient-to-r from-[#FF6B35] to-[#FF8C42] hover:shadow-xl text-white px-4 sm:px-8 py-2 sm:py-3 rounded-full font-bold shadow-lg transition-all text-xs sm:text-base whitespace-nowrap">
-                AI 幫我挑 →
+AI 導遊幫我挑 →
               </button>
             )}
           </div>

@@ -144,10 +144,10 @@ function TimelineItem({ item, isLast, image, themeId, themeName, themeCity }) {
 
   if (item.type === 'travel') {
     return (
-      <div className="flex gap-4 sm:gap-6 mb-4">
-        <div className="flex-shrink-0 w-16 sm:w-20" />
-        <div className="flex-shrink-0 flex flex-col items-center">
-          <div className="w-3 h-3 rounded-full bg-gray-300" />
+      <div className="flex gap-2 sm:gap-4 mb-4">
+        <div className="flex-shrink-0 w-10 sm:w-20" />
+        <div className="flex-shrink-0 flex flex-col items-center w-4">
+          <div className="w-3 h-3 rounded-full bg-gray-300 mt-2 ml-0.5" />
           {!isLast && <div className="w-0.5 flex-1 bg-gray-200 min-h-[40px]" />}
         </div>
         <div className="flex-1 pb-4">
@@ -161,13 +161,13 @@ function TimelineItem({ item, isLast, image, themeId, themeName, themeCity }) {
 
   if (item.type === 'meal') {
     return (
-      <div className="flex gap-4 sm:gap-6 mb-6">
-        <div className="flex-shrink-0 w-16 sm:w-20 text-right">
-          <div className="text-xl font-black text-blue-500">{item.time}</div>
-          <div className="text-xs text-gray-500">{item.duration}</div>
+      <div className="flex gap-2 sm:gap-4 mb-6">
+        <div className="flex-shrink-0 w-10 sm:w-20 text-right">
+          <div className="text-sm sm:text-xl font-black text-blue-500">{item.time}</div>
+          <div className="text-[10px] sm:text-xs text-gray-500 whitespace-nowrap">{item.duration}</div>
         </div>
-        <div className="flex-shrink-0 flex flex-col items-center">
-          <div className="w-4 h-4 rounded-full bg-blue-500 border-4 border-blue-100" />
+        <div className="flex-shrink-0 flex flex-col items-center w-4">
+          <div className="w-4 h-4 rounded-full bg-blue-500 border-4 border-blue-100 mt-2" />
           {!isLast && <div className="w-0.5 flex-1 bg-gray-200 min-h-[60px]" />}
         </div>
         <div className="flex-1">
@@ -222,8 +222,8 @@ function TimelineItem({ item, isLast, image, themeId, themeName, themeCity }) {
         <div className="text-sm sm:text-xl font-black text-[#FF7847]">{item.time}</div>
         <div className="text-[10px] sm:text-xs text-gray-500 whitespace-nowrap">{item.duration}</div>
       </div>
-      <div className="flex-shrink-0 flex flex-col items-center w-3">
-        <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-[#FF7847] border-2 sm:border-4 border-orange-100 mt-1.5" />
+      <div className="flex-shrink-0 flex flex-col items-center w-4">
+        <div className="w-4 h-4 rounded-full bg-[#FF7847] border-4 border-orange-100 mt-2" />
         {!isLast && <div className="w-0.5 flex-1 bg-gray-200 min-h-[80px]" />}
       </div>
       <div className="flex-1 min-w-0 pb-2">
