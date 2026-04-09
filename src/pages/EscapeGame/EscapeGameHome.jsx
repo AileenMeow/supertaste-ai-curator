@@ -73,7 +73,7 @@ export default function EscapeGameHome() {
       </div>
 
       {/* Cards */}
-      <div className="container mx-auto px-6 pb-8">
+      <div className="container mx-auto px-6 pb-4">
         <div className="flex items-center justify-center gap-3 mb-5">
           <div className="h-px bg-gradient-to-r from-transparent via-orange-300 to-transparent flex-1 max-w-xs" />
           <span className="text-orange-600 font-medium text-sm">選擇你的冒險</span>
@@ -191,16 +191,16 @@ export default function EscapeGameHome() {
           })}
         </div>
 
-        <div className="text-center mt-6">
+        <div className="text-center mt-3">
           <p className="text-gray-500 text-xs">
             提示：每個遊戲都需要實地前往景點拍照才能解鎖下一關
           </p>
         </div>
       </div>
 
-      <footer className="bg-black py-12 mt-8">
+      <footer className="bg-black py-4 mt-4">
         <div className="max-w-7xl mx-auto px-6 text-center">
-          <p className="text-white text-sm">
+          <p className="text-white text-xs">
             食尚玩家 AI 導遊 · 由 Claude AI 驅動 · Prototype v1.26
           </p>
         </div>
