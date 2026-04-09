@@ -673,6 +673,24 @@ export default function ItineraryPage() {
         const stops = itinerary.itinerary || [];
         const restaurantCount = stops.filter(s => inferType(s) === 'restaurant').length;
 
+        // Nearby restaurants — fallback to other themes in same city if current theme has none
+        let nearbyRestaurants = themeSpots.filter(s => s.type === 'restaurant');
+        if (nearbyRestaurants.length < 3 && realTheme) {
+          const sameCityThemes = spotsData.themes.filter(t => t.city === realTheme.city && t.theme_id !== realTheme.theme_id);
+          const extras = sameCityThemes
+            .flatMap(t => t.spots)
+            .filter(s => s.type === 'restaurant');
+          // Dedupe by name
+          const seen = new Set(nearbyRestaurants.map(r => r.name));
+          for (const s of extras) {
+            if (seen.has(s.name)) continue;
+            nearbyRestaurants.push(s);
+            seen.add(s.name);
+            if (nearbyRestaurants.length >= 3) break;
+          }
+        }
+        nearbyRestaurants = nearbyRestaurants.slice(0, 3);
+
         return (
           <div className="fade-in-up">
             {/* ── Hero ───────────────────────────────────── */}
@@ -723,8 +741,8 @@ export default function ItineraryPage() {
               </div>
             </div>
 
-            {/* ── Dining recommendation (when restaurants < 3) ── */}
-            {restaurantCount < 3 && (
+            {/* ── Dining recommendation ── */}
+            {restaurantCount < 3 && nearbyRestaurants.length > 0 && (
               <div className="bg-orange-50 py-16">
                 <div className="max-w-7xl mx-auto px-6">
                   <div className="text-center mb-10">
@@ -735,7 +753,7 @@ export default function ItineraryPage() {
                     <p className="text-gray-600 text-lg mt-2">食尚玩家嚴選，{theme.city}周邊美食</p>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {themeSpots.filter(s => s.type === 'restaurant').slice(0, 3).map((r, i) => (
+                    {nearbyRestaurants.map((r, i) => (
                       <div key={i} className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all duration-300">
                         <div className={`h-48 bg-gradient-to-br ${theme.coverGradient} relative`}>
                           {themeImages[i] && (
