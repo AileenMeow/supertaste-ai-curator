@@ -11,6 +11,7 @@ import SpotPicker from '../components/ui/SpotPicker';
 import { useSavedSpots } from '../store/savedSpotsStore';
 import { THEME_EXCEL_MAP } from '../data/themeMapping';
 import spotsData from '../data/supertaste_spots_data.json';
+import articleTitles from '../data/article-titles.json';
 import { mapSpotData } from '../utils/spotDataMapper';
 import { planItinerary } from '../lib/aiPlanner';
 import {
@@ -807,12 +808,17 @@ export default function ItineraryPage() {
                   <HdNews size={22} color="#1f2937" /> 資料來源
                 </h3>
                 <div className="text-sm font-medium text-gray-700 mb-3">食尚玩家報導：</div>
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {Array.from(new Map(stops.filter(s => s.source_url).map(s => [s.source_url, s])).values()).map((s, i) => (
-                    <a key={i} href={s.source_url}
+                <div className="space-y-2 mb-4">
+                  {Array.from(new Set(stops.filter(s => s.source_url).map(s => s.source_url))).map((url, i) => (
+                    <a key={i} href={url}
                       target="_blank" rel="noopener noreferrer"
-                      className="text-orange-600 hover:text-orange-700 text-sm bg-white px-3 py-1.5 rounded-full border border-orange-200 hover:border-orange-400 transition-all">
-                      {s.name}
+                      className="flex items-start gap-3 group">
+                      <span className="flex-shrink-0 w-6 h-6 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-xs font-bold">
+                        {i + 1}
+                      </span>
+                      <span className="flex-1 text-gray-700 group-hover:text-orange-600 group-hover:underline text-sm leading-snug">
+                        {articleTitles[url] || url}
+                      </span>
                     </a>
                   ))}
                 </div>
