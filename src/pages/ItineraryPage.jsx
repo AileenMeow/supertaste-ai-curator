@@ -217,19 +217,19 @@ function TimelineItem({ item, isLast, image, themeId, themeName, themeCity }) {
   const TIcon = tBadge.Icon;
 
   return (
-    <div className="flex gap-3 sm:gap-6 mb-6 min-w-0">
-      <div className="flex-shrink-0 w-14 sm:w-20 text-right">
-        <div className="text-base sm:text-xl font-black text-[#FF7847]">{item.time}</div>
-        <div className="text-[10px] sm:text-xs text-gray-500">{item.duration}</div>
+    <div className="flex gap-2 sm:gap-6 mb-6 min-w-0">
+      <div className="flex-shrink-0 w-12 sm:w-20 text-right">
+        <div className="text-sm sm:text-xl font-black text-[#FF7847]">{item.time}</div>
+        <div className="text-[10px] sm:text-xs text-gray-500 whitespace-nowrap">{item.duration}</div>
       </div>
       <div className="flex-shrink-0 flex flex-col items-center">
-        <div className="w-4 h-4 rounded-full bg-[#FF7847] border-4 border-orange-100" />
+        <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-[#FF7847] border-2 sm:border-4 border-orange-100 mt-1.5" />
         {!isLast && <div className="w-0.5 flex-1 bg-gray-200 min-h-[80px]" />}
       </div>
       <div className="flex-1 min-w-0 pb-2">
         <div className="bg-gray-50 hover:bg-white hover:shadow-md rounded-xl p-3 sm:p-5 transition-all">
           <div className="flex items-start gap-3 sm:gap-4">
-            <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-lg overflow-hidden flex-shrink-0 bg-gradient-to-br from-orange-300 to-pink-400">
+            <div className="w-14 h-14 sm:w-24 sm:h-24 rounded-lg overflow-hidden flex-shrink-0 bg-gradient-to-br from-orange-300 to-pink-400">
               {image && (
                 <img src={image} alt={stop.name} className="w-full h-full object-cover"
                   onError={e => { e.target.style.display = 'none'; }} />
@@ -251,10 +251,10 @@ function TimelineItem({ item, isLast, image, themeId, themeName, themeCity }) {
               {stop.tagline && (
                 <p className="text-gray-700 text-sm font-medium mb-2 line-clamp-2">{stop.tagline}</p>
               )}
-              <div className="flex items-center gap-3 text-xs text-gray-500 flex-wrap mb-2">
-                {stop.budget && <span className="inline-flex items-center gap-1"><HdCoin size={13} color="#6b7280" /> {stop.budget}</span>}
-                {stop.suggestedDuration && <span className="inline-flex items-center gap-1"><HdClock size={13} color="#6b7280" /> 停留 {stop.suggestedDuration}</span>}
-                {stop.businessHours && <span className="inline-flex items-center gap-1"><HdHours size={13} color="#6b7280" /> {stop.businessHours}</span>}
+              <div className="flex items-center gap-x-3 gap-y-1 text-xs text-gray-500 flex-wrap mb-2">
+                {stop.budget && <span className="inline-flex items-center gap-1 whitespace-nowrap"><HdCoin size={13} color="#6b7280" /> {stop.budget}</span>}
+                {stop.suggestedDuration && <span className="inline-flex items-center gap-1 whitespace-nowrap"><HdClock size={13} color="#6b7280" /> 停留 {stop.suggestedDuration}</span>}
+                {stop.businessHours && <span className="inline-flex items-center gap-1 whitespace-nowrap"><HdHours size={13} color="#6b7280" /> {stop.businessHours}</span>}
               </div>
               {stop.source_url && (
                 <a href={stop.source_url}
