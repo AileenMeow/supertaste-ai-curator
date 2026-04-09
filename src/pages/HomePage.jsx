@@ -331,7 +331,7 @@ export default function HomePage() {
           {/* Main title — ZCOOL KuaiLe playful font */}
           <h1 className="font-kuaile text-[2.6rem] sm:text-[3.4rem] lg:text-[4rem] leading-[1.2] mb-2"
             style={{ color: '#fff', textShadow: '2px 3px 12px rgba(180,60,0,0.35)', letterSpacing: '0.02em' }}>
-            台灣新玩法，
+            台灣新玩法
             <br />
             <span style={{ color: '#FFF8E7' }}>開啟一場有溫度的旅行</span>
           </h1>
