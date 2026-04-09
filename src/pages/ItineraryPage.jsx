@@ -841,6 +841,7 @@ export default function ItineraryPage() {
                   // Reload spots in case the cached path skipped them earlier
                   if (realTheme) setThemeSpots(realTheme.spots || []);
                   setPhase('picking');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}>
                 <HdRefresh size={18} color="#FF7847" /> 重新規劃行程
               </button>
