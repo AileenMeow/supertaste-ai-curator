@@ -76,7 +76,7 @@ export default function FilterModal({ onClose }) {
       className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-4"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto">
+      <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-lg">
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-[#F0F0F0] px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
