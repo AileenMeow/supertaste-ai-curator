@@ -38,6 +38,7 @@ const CITY_CONFIG = {
 
 export default function EscapeGameHome() {
   const progress = useEscapeGameStore((s) => s.progress);
+  const resetCity = useEscapeGameStore((s) => s.resetCity);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-yellow-50">
@@ -87,9 +88,8 @@ export default function EscapeGameHome() {
 
             return (
               <div key={game.id} className="group relative" style={{ animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both` }}>
-                <Link to={`/escape-game/${game.id}`} className="block">
-                  <div className="relative overflow-hidden rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-100"
-                    style={{ background: game.theme.gradient }}>
+                <div className="relative overflow-hidden rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-100"
+                  style={{ background: game.theme.gradient }}>
                     {/* Bg pattern overlay */}
                     <div className="absolute inset-0 opacity-30 pointer-events-none" style={{ backgroundImage: config.bgPattern }} />
 
@@ -149,17 +149,45 @@ export default function EscapeGameHome() {
                         </div>
                       )}
 
-                      <div className="w-full py-2.5 rounded-full font-bold text-center transition-all duration-300 flex items-center justify-center gap-2 group-hover:gap-3 text-sm"
-                        style={{ backgroundColor: config.accentColor, color: '#fff' }}>
-                        {isCompleted ? '重新體驗' : isStarted ? '繼續冒險' : '開始冒險'}
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                        </svg>
-                      </div>
+                      {isCompleted ? (
+                        <div className="grid grid-cols-2 gap-2">
+                          <Link to={`/escape-game/${game.id}/complete`}
+                            className="py-2.5 rounded-full font-bold text-center transition-all duration-300 text-xs flex items-center justify-center gap-1"
+                            style={{ backgroundColor: `${config.accentColor}20`, color: config.accentColor, border: `2px solid ${config.accentColor}` }}>
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            查看回顧
+                          </Link>
+                          <button
+                            onClick={() => {
+                              if (confirm('確定要重新開始嗎？進度將會清除。')) {
+                                resetCity(game.id);
+                                window.location.href = `/escape-game/${game.id}`;
+                              }
+                            }}
+                            className="py-2.5 rounded-full font-bold text-center transition-all duration-300 text-xs flex items-center justify-center gap-1"
+                            style={{ backgroundColor: config.accentColor, color: '#fff' }}>
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            重新開始
+                          </button>
+                        </div>
+                      ) : (
+                        <Link to={`/escape-game/${game.id}`}
+                          className="w-full py-2.5 rounded-full font-bold text-center transition-all duration-300 flex items-center justify-center gap-2 group-hover:gap-3 text-sm"
+                          style={{ backgroundColor: config.accentColor, color: '#fff' }}>
+                          {isStarted ? '繼續冒險' : '開始冒險'}
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                          </svg>
+                        </Link>
+                      )}
                     </div>
                   </div>
-                </Link>
-              </div>
+                </div>
             );
           })}
         </div>

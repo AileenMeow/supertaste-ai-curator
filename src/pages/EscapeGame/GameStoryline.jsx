@@ -41,7 +41,7 @@ export default function GameStoryline() {
       setShowStoryModal(true);
       if (mission.isFinal) {
         completeGame(city);
-        setTimeout(() => navigate(`/escape-game/${city}/complete`), 4000);
+        setTimeout(() => navigate(`/escape-game/${city}/complete`), 3000);
       }
     };
     reader.readAsDataURL(file);
