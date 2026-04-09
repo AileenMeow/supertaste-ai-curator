@@ -80,6 +80,62 @@ export default function GameStoryline() {
 
   // Per-mission illustrations
   const getMissionIllustration = (n) => {
+    if (isHualien) {
+      const hualien = {
+        1: {
+          gradient: 'linear-gradient(135deg, #1a2a1a 0%, #2a4a2a 50%, #2E7D32 100%)',
+          pattern: `<svg width="100%" height="100%" opacity="0.3"><defs><pattern id="mp" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse"><polygon points="25,80 50,20 75,80" fill="none" stroke="#FFB300" stroke-width="2" opacity="0.4"/><polygon points="0,90 25,40 50,90" fill="none" stroke="#FFB300" stroke-width="1.5" opacity="0.3"/><polygon points="50,90 75,40 100,90" fill="none" stroke="#FFB300" stroke-width="1.5" opacity="0.3"/></pattern></defs><rect width="100%" height="100%" fill="url(#mp)" /></svg>`,
+          icon: (
+            <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+            </svg>
+          ),
+          description: '山的力量考驗你的勇氣與毅力...',
+        },
+        2: {
+          gradient: 'linear-gradient(135deg, #0a1a2a 0%, #1a3a4a 50%, #0077be 100%)',
+          pattern: `<svg width="100%" height="100%" opacity="0.3"><defs><pattern id="wp" x="0" y="0" width="120" height="60" patternUnits="userSpaceOnUse"><path d="M0,30 Q30,10 60,30 T120,30" fill="none" stroke="#FFB300" stroke-width="2" opacity="0.4"/><path d="M0,40 Q30,20 60,40 T120,40" fill="none" stroke="#FFB300" stroke-width="1.5" opacity="0.3"/><path d="M0,50 Q30,30 60,50 T120,50" fill="none" stroke="#FFB300" stroke-width="1" opacity="0.2"/></pattern></defs><rect width="100%" height="100%" fill="url(#wp)" /></svg>`,
+          icon: (
+            <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          ),
+          description: '海的智慧測試你的心靈與信念...',
+        },
+        3: {
+          gradient: 'linear-gradient(135deg, #1a2a0a 0%, #2a4a1a 50%, #4a6a2a 100%)',
+          pattern: `<svg width="100%" height="100%" opacity="0.25"><defs><pattern id="fp" x="0" y="0" width="80" height="100" patternUnits="userSpaceOnUse"><line x1="20" y1="0" x2="20" y2="100" stroke="#FFB300" stroke-width="3" opacity="0.3"/><circle cx="20" cy="20" r="15" fill="none" stroke="#FFB300" stroke-width="1" opacity="0.2"/><line x1="60" y1="20" x2="60" y2="100" stroke="#FFB300" stroke-width="2.5" opacity="0.3"/><circle cx="60" cy="30" r="12" fill="none" stroke="#FFB300" stroke-width="1" opacity="0.2"/></pattern></defs><rect width="100%" height="100%" fill="url(#fp)" /></svg>`,
+          icon: (
+            <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          ),
+          description: '森林的生命力檢驗你的韌性...',
+        },
+        4: {
+          gradient: 'linear-gradient(135deg, #2a1a0a 0%, #5a4a2a 50%, #8a6a3a 100%)',
+          pattern: `<svg width="100%" height="100%" opacity="0.3"><defs><pattern id="ep" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="60" height="15" fill="none" stroke="#FFB300" stroke-width="1" opacity="0.2"/><rect x="0" y="15" width="60" height="15" fill="none" stroke="#FFB300" stroke-width="1" opacity="0.25"/><rect x="0" y="30" width="60" height="15" fill="none" stroke="#FFB300" stroke-width="1" opacity="0.2"/><rect x="0" y="45" width="60" height="15" fill="none" stroke="#FFB300" stroke-width="1" opacity="0.25"/></pattern></defs><rect width="100%" height="100%" fill="url(#ep)" /></svg>`,
+          icon: (
+            <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+            </svg>
+          ),
+          description: '大地的沉穩鍛鍊你的根基...',
+        },
+        5: {
+          gradient: 'linear-gradient(135deg, #1a2a1a 0%, #2a4a2a 30%, #2E7D32 60%, #FFB300 100%)',
+          pattern: `<svg width="100%" height="100%" opacity="0.4"><defs><radialGradient id="tp"><stop offset="0%" style="stop-color:#FFB300;stop-opacity:0.4" /><stop offset="100%" style="stop-color:#FFB300;stop-opacity:0" /></radialGradient><pattern id="tbp" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="30" fill="none" stroke="#FFB300" stroke-width="2" opacity="0.4"/><circle cx="50" cy="50" r="20" fill="none" stroke="#FFB300" stroke-width="1.5" opacity="0.3"/><line x1="50" y1="20" x2="50" y2="80" stroke="#FFB300" stroke-width="1" opacity="0.3"/><line x1="20" y1="50" x2="80" y2="50" stroke="#FFB300" stroke-width="1" opacity="0.3"/></pattern></defs><circle cx="50%" cy="50%" r="40%" fill="url(#tp)" /><rect width="100%" height="100%" fill="url(#tbp)" /></svg>`,
+          icon: (
+            <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          ),
+          description: '四種力量合一，守護部落的榮耀...',
+        },
+      };
+      return hualien[n] || hualien[1];
+    }
+
     if (isTainan) {
       const tainan = {
         1: {
