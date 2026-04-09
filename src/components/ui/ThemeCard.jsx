@@ -3,9 +3,11 @@ import { PinIcon } from '../icons';
 import { COVER_IMAGES } from '../../data/coverImages';
 
 const getTitleSize = (title) => {
-  if (title.length > 10) return '2.2rem';
-  if (title.length > 7) return '2.8rem';
-  return '3.2rem';
+  // Slightly smaller on long titles to avoid overflow on mobile
+  if (title.length > 12) return '1.7rem';
+  if (title.length > 9)  return '2rem';
+  if (title.length > 6)  return '2.4rem';
+  return '2.8rem';
 };
 
 export default function ThemeCard({ theme, delay = 0, articleImage = null }) {
@@ -45,9 +47,9 @@ export default function ThemeCard({ theme, delay = 0, articleImage = null }) {
           style={{
             fontSize: getTitleSize(theme.name),
             textShadow: '0 2px 8px rgba(0,0,0,0.8), 0 4px 16px rgba(0,0,0,0.6), 0 0 40px rgba(0,0,0,0.4)',
-            letterSpacing: '0.03em',
+            letterSpacing: '0.02em',
             WebkitTextStroke: '1px rgba(0,0,0,0.3)',
-            whiteSpace: 'nowrap',
+            wordBreak: 'keep-all',
           }}
         >
           {theme.name}

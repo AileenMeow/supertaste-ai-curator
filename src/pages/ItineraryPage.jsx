@@ -216,19 +216,19 @@ function TimelineItem({ item, isLast, image, themeId, themeName, themeCity }) {
   const TIcon = tBadge.Icon;
 
   return (
-    <div className="flex gap-4 sm:gap-6 mb-6">
-      <div className="flex-shrink-0 w-16 sm:w-20 text-right">
-        <div className="text-xl font-black text-[#FF7847]">{item.time}</div>
-        <div className="text-xs text-gray-500">{item.duration}</div>
+    <div className="flex gap-3 sm:gap-6 mb-6 min-w-0">
+      <div className="flex-shrink-0 w-14 sm:w-20 text-right">
+        <div className="text-base sm:text-xl font-black text-[#FF7847]">{item.time}</div>
+        <div className="text-[10px] sm:text-xs text-gray-500">{item.duration}</div>
       </div>
       <div className="flex-shrink-0 flex flex-col items-center">
         <div className="w-4 h-4 rounded-full bg-[#FF7847] border-4 border-orange-100" />
         {!isLast && <div className="w-0.5 flex-1 bg-gray-200 min-h-[80px]" />}
       </div>
-      <div className="flex-1 pb-2">
-        <div className="bg-gray-50 hover:bg-white hover:shadow-md rounded-xl p-5 transition-all">
-          <div className="flex items-start gap-4">
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden flex-shrink-0 bg-gradient-to-br from-orange-300 to-pink-400">
+      <div className="flex-1 min-w-0 pb-2">
+        <div className="bg-gray-50 hover:bg-white hover:shadow-md rounded-xl p-3 sm:p-5 transition-all">
+          <div className="flex items-start gap-3 sm:gap-4">
+            <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-lg overflow-hidden flex-shrink-0 bg-gradient-to-br from-orange-300 to-pink-400">
               {image && (
                 <img src={image} alt={stop.name} className="w-full h-full object-cover"
                   onError={e => { e.target.style.display = 'none'; }} />
@@ -246,7 +246,7 @@ function TimelineItem({ item, isLast, image, themeId, themeName, themeCity }) {
                 </span>
                 {stop.area && <span className="text-gray-500 text-xs">{stop.area}</span>}
               </div>
-              <h3 className="text-lg sm:text-xl font-black text-gray-900 mb-1.5 leading-tight">{stop.name}</h3>
+              <h3 className="text-base sm:text-xl font-black text-gray-900 mb-1.5 leading-tight break-words">{stop.name}</h3>
               {stop.tagline && (
                 <p className="text-gray-700 text-sm font-medium mb-2 line-clamp-2">{stop.tagline}</p>
               )}

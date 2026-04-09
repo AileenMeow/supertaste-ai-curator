@@ -16,9 +16,15 @@ const RESTAURANT_KEYWORDS = ['咖啡', '餐廳', '小吃', '料理', '美食', '
 const SHOP_KEYWORDS = ['伴手禮', '購物', '商店', '百貨', '市集', '名產'];
 const CULTURE_KEYWORDS = ['博物館', '展覽', '古蹟', '文物', '美術館', '園區', '老屋'];
 
+// Strong override keywords — these always win over JSON's `type` field
+const FORCE_ATTRACTION = ['老街', '步道', '瀑布', '峽谷', '公園', '景觀', '秘境', '海灘', '海岸', '夜市', '森林', '湖', '橋', '島', '岸', '寺', '廟', '祠', '塔', '棧道', '園區'];
+
 function normalizeSpotType(spot) {
-  const blob = `${spot.name || ''} ${(spot.tags || []).join(' ')}`;
-  // Priority: attraction > restaurant > shop > experience (so 峽谷/步道 win over 茶)
+  const name = spot.name || '';
+  const blob = `${name} ${(spot.tags || []).join(' ')}`;
+  // Force-override: e.g. JSON tags 安平老街 as restaurant, but it's clearly an attraction
+  if (FORCE_ATTRACTION.some(k => name.includes(k))) return { ...spot, type: 'attraction' };
+  // Otherwise priority: attraction > restaurant > shop > experience
   if (ATTRACTION_KEYWORDS.some(k => blob.includes(k))) return { ...spot, type: 'attraction' };
   if (RESTAURANT_KEYWORDS.some(k => blob.includes(k))) return { ...spot, type: 'restaurant' };
   if (SHOP_KEYWORDS.some(k => blob.includes(k))) return { ...spot, type: 'shop' };
@@ -265,7 +271,7 @@ export default function SpotPicker({ theme, spots, images = [], onGenerate, onAi
   }
 
   return (
-    <div className="pb-36 bg-white">
+    <div className="pb-44 sm:pb-36 bg-white">
       {/* Hero — shorter, with per-theme decorative emoji background */}
       {theme && (
         <section className={`relative bg-gradient-to-br ${theme.coverGradient} min-h-[320px] flex items-center justify-center overflow-hidden pt-20 pb-8`}>
