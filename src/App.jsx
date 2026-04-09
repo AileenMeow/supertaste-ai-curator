@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import ScrollToTop from './components/ScrollToTop';
 import HomePage from './pages/HomePage';
 import ItineraryPage from './pages/ItineraryPage';
 import ExplorePage from './pages/ExplorePage';
@@ -10,6 +11,7 @@ import GameComplete from './pages/EscapeGame/GameComplete';
 export default function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/itinerary/:themeId" element={<ItineraryPage />} />
