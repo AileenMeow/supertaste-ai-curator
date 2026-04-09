@@ -127,9 +127,9 @@ function SpotCard({ spot, isSelected, onToggle }) {
           )}
         </div>
         <div className="flex items-end justify-between mt-3 pt-3 border-t border-gray-100 gap-3">
-          <div className="flex gap-1.5 flex-wrap">
-            {spot.tags?.slice(0, 4).map(t => (
-              <span key={t} className="bg-gray-100 text-gray-600 text-[11px] px-2 py-0.5 rounded-full">#{t}</span>
+          <div className="flex gap-1.5 flex-wrap min-w-0">
+            {spot.tags?.slice(0, 3).map(t => (
+              <span key={t} className="bg-gray-100 text-gray-600 text-[11px] px-2 py-0.5 rounded-full whitespace-nowrap">#{t}</span>
             ))}
           </div>
           {spot.area && (
@@ -414,29 +414,28 @@ export default function SpotPicker({ theme, spots, images = [], onGenerate, onAi
 
       {/* Fixed bottom bar — always visible */}
       <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t-2 border-gray-200 shadow-2xl">
-        <div className="max-w-5xl mx-auto px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-2 sm:gap-4">
-          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-            <span className="text-gray-700 text-xs sm:text-base font-medium hidden sm:inline">已選擇</span>
-            <span className="text-gray-700 text-xs sm:hidden font-medium">已選</span>
-            <span className="text-green-500 text-xl sm:text-3xl font-black">{selected.size}</span>
-            <span className="text-gray-700 text-xs sm:text-base font-medium">個景點</span>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3 sm:gap-4">
+          <div className="flex items-baseline gap-1.5 sm:gap-2 flex-shrink-0">
+            <span className="text-gray-700 text-sm sm:text-base font-medium">已選</span>
+            <span className="text-green-500 text-2xl sm:text-3xl font-black leading-none">{selected.size}</span>
+            <span className="text-gray-700 text-sm sm:text-base font-medium">個景點</span>
           </div>
           <div className="flex gap-2 sm:gap-3 items-center flex-shrink-0">
             {selected.size > 0 && (
               <button onClick={clearSelection}
-                className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full font-medium transition-all text-xs sm:text-sm">
+                className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full font-medium transition-all text-sm">
                 清除
               </button>
             )}
             {selected.size > 0 ? (
               <button onClick={handleGenerate}
-                className="bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white px-4 sm:px-8 py-2 sm:py-3 rounded-full font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-1 text-xs sm:text-base whitespace-nowrap">
+                className="bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white px-5 sm:px-8 py-2.5 sm:py-3 rounded-full font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-1 text-sm sm:text-base whitespace-nowrap">
                 生成行程 →
               </button>
             ) : (
               <button onClick={onAiPick}
-                className="bg-gradient-to-r from-[#FF6B35] to-[#FF8C42] hover:shadow-xl text-white px-4 sm:px-8 py-2 sm:py-3 rounded-full font-bold shadow-lg transition-all text-xs sm:text-base whitespace-nowrap">
-AI 導遊幫我挑 →
+                className="bg-gradient-to-r from-[#FF6B35] to-[#FF8C42] hover:shadow-xl text-white px-5 sm:px-8 py-2.5 sm:py-3 rounded-full font-bold shadow-lg transition-all text-sm sm:text-base whitespace-nowrap">
+                AI 導遊幫我挑 →
               </button>
             )}
           </div>

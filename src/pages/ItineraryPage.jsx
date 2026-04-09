@@ -257,22 +257,24 @@ function TimelineItem({ item, isLast, image, themeId, themeName, themeCity }) {
                 {stop.suggestedDuration && <span className="inline-flex items-center gap-1 whitespace-nowrap"><HdClock size={13} color="#6b7280" /> 停留 {stop.suggestedDuration}</span>}
                 {stop.businessHours && <span className="inline-flex items-center gap-1 whitespace-nowrap"><HdHours size={13} color="#6b7280" /> {stop.businessHours}</span>}
               </div>
-              {stop.source_url && (
-                <a href={stop.source_url}
-                  target="_blank" rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="text-orange-600 hover:text-orange-700 text-xs font-semibold inline-flex items-center gap-1">
-                  查看食尚玩家完整報導 →
-                </a>
-              )}
+              <div className="flex items-center justify-between gap-2 clear-right">
+                {stop.source_url ? (
+                  <a href={stop.source_url}
+                    target="_blank" rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="text-orange-600 hover:text-orange-700 text-xs font-semibold inline-flex items-center gap-1">
+                    查看食尚玩家完整報導 →
+                  </a>
+                ) : <span />}
+                <button
+                  onClick={(e) => { e.stopPropagation(); toggleSpot(stop, themeId, themeName, themeCity); }}
+                  className="flex-shrink-0 p-1.5 rounded-full hover:bg-orange-50 transition-colors"
+                  aria-label={saved ? '取消收藏' : '加入收藏'}
+                >
+                  <HeartIcon size={20} color="#FF7847" filled={saved} />
+                </button>
+              </div>
             </div>
-            <button
-              onClick={(e) => { e.stopPropagation(); toggleSpot(stop, themeId, themeName, themeCity); }}
-              className="flex-shrink-0 p-2 rounded-full hover:bg-orange-50 transition-colors"
-              aria-label={saved ? '取消收藏' : '加入收藏'}
-            >
-              <HeartIcon size={20} color="#FF7847" filled={saved} />
-            </button>
           </div>
         </div>
       </div>
