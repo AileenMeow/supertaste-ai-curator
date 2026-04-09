@@ -341,17 +341,17 @@ export default function HomePage() {
           </p>
 
           {/* CTAs */}
-          <div className="flex justify-center gap-4 flex-wrap">
+          <div className="flex justify-center gap-4 flex-wrap sm:flex-nowrap max-w-3xl mx-auto">
             <button onClick={() => setShowFilter(true)}
-              className="bg-white text-[#E04400] px-8 py-4 rounded-full font-bold text-base sm:text-lg shadow-lg hover:shadow-xl hover:scale-105 hover:bg-orange-50 transition-all duration-300">
+              className="sm:flex-1 bg-white text-[#E04400] px-6 py-4 rounded-full font-bold text-base sm:text-lg shadow-lg hover:shadow-xl hover:scale-105 hover:bg-orange-50 transition-all duration-300 whitespace-nowrap">
               告訴我你想怎麼玩
             </button>
             <button onClick={() => navigate('/explore')}
-              className="border-2 border-white text-white px-8 py-4 rounded-full font-bold text-base sm:text-lg hover:bg-white/20 backdrop-blur-sm transition-all duration-300">
+              className="sm:flex-1 border-2 border-white text-white px-6 py-4 rounded-full font-bold text-base sm:text-lg hover:bg-white/20 backdrop-blur-sm transition-all duration-300 whitespace-nowrap">
               依城市探索
             </button>
             <button onClick={() => navigate('/escape-game')}
-              className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-full font-bold text-base sm:text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
+              className="sm:flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-4 rounded-full font-bold text-base sm:text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 whitespace-nowrap">
               城市逃脫遊戲
             </button>
           </div>
